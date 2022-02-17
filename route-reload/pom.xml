@@ -54,7 +54,14 @@
             <dependency>
                 <groupId>org.apache.camel.springboot</groupId>
                 <artifactId>camel-spring-boot-bom</artifactId>
-                <version>${project.version}</version>
+                <version>${camel-spring-boot-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel.springboot</groupId>
+                <artifactId>camel-spring-boot-dependencies</artifactId>
+                <version>${camel-spring-boot-version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -81,6 +88,7 @@
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-xml-jaxb-dsl-starter</artifactId>
+            <version>3.14.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
@@ -128,7 +136,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-maven-plugin</artifactId>
-                <version>${camel-version}</version>
+                <version>${camel-spring-boot-version}</version>
                 <!-- allows to fail if not all routes are fully covered during testing -->
                 <!--
                         <configuration>
