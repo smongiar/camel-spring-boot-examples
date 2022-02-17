@@ -53,8 +53,15 @@
             <!-- Camel BOM -->
             <dependency>
                 <groupId>org.apache.camel.springboot</groupId>
+                <artifactId>camel-spring-boot-bom</artifactId>
+                <version>${camel-spring-boot-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel.springboot</groupId>
                 <artifactId>camel-spring-boot-dependencies</artifactId>
-                <version>${project.version}</version>
+                <version>${camel-spring-boot-version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -92,12 +99,10 @@
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-fhir-starter</artifactId>
-            <version>${camel-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-csv-starter</artifactId>
-            <version>${camel-version}</version>
         </dependency>
         <dependency>
             <groupId>ca.uhn.hapi</groupId>
