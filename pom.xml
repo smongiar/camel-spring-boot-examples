@@ -43,7 +43,6 @@
 		<module>arangodb</module>
 		<module>aws2-s3</module>
 		<module>clustered-route-controller</module>
-		<!--module>dynamic-router-eip</module-->
 		<module>fhir</module>
 		<module>fhir-auth-tx</module>
 		<module>geocoder</module>
@@ -74,7 +73,6 @@
 		<module>rest-openapi-springdoc</module>
 		<module>routetemplate</module>
 		<module>route-reload</module>
-		<!--module>routes-configuration</module-->
 		<module>servicecall</module>
 		<module>supervising-route-controller</module>
 		<module>twitter-salesforce</module>
