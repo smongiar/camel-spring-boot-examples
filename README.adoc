@@ -27,7 +27,7 @@ readme's instructions.
 === Examples
 
 // examples: START
-Number of Examples: 55 (0 deprecated)
+Number of Examples: 53 (0 deprecated)
 
 [width="100%",cols="4,2,4",options="header"]
 |===
@@ -54,8 +54,6 @@ Number of Examples: 55 (0 deprecated)
 | link:rest-swagger-simple/README.adoc[REST Swagger] (rest-swagger-simple) | Beginner | This example shows how to call a Rest service defined using Swagger specification
 
 | link:route-reload/readme.adoc[Spring Boot Route Reload] (route-reload) | Beginner | Live reload of routes if file is updated and saved
-
-| link:routes-configuration/readme.adoc[Routes Configuration] (routes-configuration) | Beginner | Example with global routes configuration for error handling
 
 | link:routetemplate/readme.adoc[Routetemplate] (routetemplate) | Beginner | How to use route templates (parameterized routes)
 
@@ -90,8 +88,6 @@ Number of Examples: 55 (0 deprecated)
 | link:rest-jpa/README.adoc[Spring Boot REST JPA] (rest-jpa) | Database | An example demonstrating how to use Camel REST DSL with JPA to expose a RESTful API that performs CRUD
         operations on a database
     
-
-| link:dynamic-router-eip/README.adoc[Dynamic Router Eip] (dynamic-router-eip) | EIP | An example on how to use the Dynamic Router EIP component in Spring Boot
 
 | link:hystrix/README.adoc[Hystrix] (hystrix) | EIP | An example showing how to use Hystrix EIP as circuit breaker in Camel routes
 
