@@ -53,13 +53,6 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.apache.camel.springboot</groupId>
-                <artifactId>camel-spring-boot-dependencies</artifactId>
-                <version>${camel-spring-boot-version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.swagger.version}</version>
@@ -166,6 +159,7 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test</artifactId>
+            <version>${camel-community.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
