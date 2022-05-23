@@ -35,6 +35,8 @@ Number of Examples: 53 (0 deprecated)
 
 | link:health-checks/readme.adoc[Health Checks] (health-checks) |  | 
 
+| link:twitter-salesforce/README.adoc[Twitter Salesforce] (twitter-salesforce) |  | Twitter mentions is created as contacts in Salesforce
+
 | link:undertow-spring-security/readme.adoc[Undertow Spring Security] (undertow-spring-security) | Advanced | Example on how to use the Camel Undertow component with spring security and Keycloak
 
 | link:webhook/readme.adoc[Webhook] (webhook) | Advanced | Example on how to use the Camel Webhook component
@@ -142,8 +144,6 @@ Number of Examples: 53 (0 deprecated)
 | link:rest-producer/readme.adoc[Rest Producer] (rest-producer) | Rest | An example showing how to use Camel Rest to call a REST service
 
 | link:rest-swagger/README.adoc[Rest Swagger] (rest-swagger) | Rest | An example showing Camel REST DSL and Swagger with Spring Boot
-
-| link:twitter-salesforce/README.adoc[Twitter Salesforce] (twitter-salesforce) | Social | Twitter mentions is created as contacts in Salesforce
 |===
 // examples: END
 
