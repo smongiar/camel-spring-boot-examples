@@ -32,7 +32,7 @@
     <properties>
         <category>Rest</category>
         <spring.boot-version>${spring-boot-version}</spring.boot-version>
-        <jackson.swagger.version>2.9.10</jackson.swagger.version>
+        <jackson.swagger.version>2.12.4</jackson.swagger.version>
     </properties>
 
     <!-- Spring-Boot and Camel BOM -->
