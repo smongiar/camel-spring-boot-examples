@@ -44,14 +44,12 @@
 		<module>apm-opentracing</module>
 		<module>arangodb</module>
 		<module>aws2-s3</module>
-		<module>clustered-route-controller</module>
 		<module>fhir</module>
 		<module>fhir-auth-tx</module>
 		<module>geocoder</module>
 		<module>grpc</module>
 		<module>grpc-kubernetes</module>
 		<module>health-checks</module>
-		<module>hystrix</module>
 		<module>infinispan</module>
 		<module>jira</module>
 		<module>kafka-avro</module>
