@@ -94,7 +94,7 @@
 	</modules>
 
 	<properties>
-		<camel-spring-boot-version>3.14.2.redhat-00054</camel-spring-boot-version>
+		<camel-spring-boot-version>3.18.2.redhat-00001</camel-spring-boot-version>
 		<skip.starting.camel.context>false</skip.starting.camel.context>
 		<javax.servlet.api.version>4.0.1</javax.servlet.api.version>
 		<fabric8-maven-plugin-version>4.4.1</fabric8-maven-plugin-version>
