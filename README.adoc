@@ -27,7 +27,7 @@ readme's instructions.
 === Examples
 
 // examples: START
-Number of Examples: 55 (0 deprecated)
+Number of Examples: 53 (0 deprecated)
 
 [width="100%",cols="4,2,4",options="header"]
 |===
@@ -83,8 +83,6 @@ Number of Examples: 55 (0 deprecated)
 
 | link:servicecall/README.adoc[Spring Boot ServiceCall] (servicecall) | Cloud | An example showing how to work with Camel ServiceCall EIP and Spring Boot
 
-| link:clustered-route-controller/readme.adoc[Clustered Route Controller] (clustered-route-controller) | Clustering | An example showing how to work with Camel's Clustered Route Controller and Spring Boot
-
 | link:master/readme.adoc[Master] (master) | Clustering | An example showing how to work with Camel's Master component and Spring Boot
 
 | link:arangodb/README.adoc[Arangodb] (arangodb) | Database | An example showing the Camel ArangoDb component with Spring Boot
@@ -92,8 +90,6 @@ Number of Examples: 55 (0 deprecated)
 | link:rest-jpa/README.adoc[Spring Boot REST JPA] (rest-jpa) | Database | An example demonstrating how to use Camel REST DSL with JPA to expose a RESTful API that performs CRUD
         operations on a database
     
-
-| link:hystrix/README.adoc[Hystrix] (hystrix) | EIP | An example showing how to use Hystrix EIP as circuit breaker in Camel routes
 
 | link:resilience4j/README.adoc[Resilience4j] (resilience4j) | EIP | An example showing how to use Resilience4j EIP as circuit breaker in Camel routes
 
