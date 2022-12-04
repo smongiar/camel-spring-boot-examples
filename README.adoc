@@ -27,13 +27,16 @@ readme's instructions.
 === Examples
 
 // examples: START
-Number of Examples: 54 (0 deprecated)
+Number of Examples: 55 (0 deprecated)
 
 [width="100%",cols="4,2,4",options="header"]
 |===
 | Example | Category | Description
 
 | link:health-checks/readme.adoc[Health Checks] (health-checks) |  | 
+
+| link:mail-ms-exchange-oauth2/Readme.adoc[Mail Ms Exchange Oauth2] (mail-ms-exchange-oauth2) |  | An example showing how to use Camel on Spring Boot to connect
+        with IMAP protocol and access email data for Office 365 users using OAuth2 authentication
 
 | link:spring-boot-jta-jpa/readme.adoc[Spring Boot Jta Jpa] (spring-boot-jta-jpa) |  | An example showing JTA with Spring Boot
 
