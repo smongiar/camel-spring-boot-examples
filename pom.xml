@@ -25,12 +25,12 @@
 	<parent>
 		<groupId>org.apache.camel.springboot</groupId>
 		<artifactId>spring-boot</artifactId>
-		<version>3.18.3-SNAPSHOT</version>
+		<version>3.20.1-SNAPSHOT</version>
 	</parent>
 
 	<groupId>org.apache.camel.springboot.example</groupId>
 	<artifactId>examples</artifactId>
-	<version>3.18.3-SNAPSHOT</version>
+	<version>3.20.1-SNAPSHOT</version>
 	<name>Camel SB :: Examples</name>
 	<description>Camel Examples</description>
 	<packaging>pom</packaging>
