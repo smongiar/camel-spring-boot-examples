@@ -68,6 +68,16 @@
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-undertow-starter</artifactId>
         </dependency>
+        <!-- xml dsl -->
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-xml-io-dsl-starter</artifactId>
+        </dependency>
+        <!-- xml dsl -->
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-xml-io-dsl-starter</artifactId>
+        </dependency>
 
         <!-- test -->
         <dependency>
