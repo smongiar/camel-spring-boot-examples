@@ -1,0 +1,33 @@
+spec:
+  replicas: 2
+  serviceName: @project.artifactId@
+  template:
+    spec:
+      serviceAccountName: @project.artifactId@
+      containers:
+      - volumeMounts:
+        - name: storage
+          mountPath: /tmp/storage
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: STORAGE_PATH
+          value: /tmp/storage
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: @project.artifactId@
+# If your OpenShift configuration does not allow multi-attach for persistent volumes, setup the nodeAffinity so that all pods of the statefulset are
+# scheduled on the same openshift node
+#      affinity:
+#        nodeAffinity:
+#          requiredDuringSchedulingIgnoredDuringExecution:
+#            nodeSelectorTerms:
+#              - matchExpressions:
+#                  - key: kubernetes.io/hostname
+#                    operator: In
+#                    values:
+#                      - <value>

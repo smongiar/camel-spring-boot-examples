@@ -1,0 +1,218 @@
+= Camel Example Spring Boot JTA
+
+This example demonstrates how to run a Camel Service on Spring Boot that supports JTA transactions on two external transactional resources: a database (MySQL) and a message broker (Artemis) together with a crash recovery.
+
+We use Narayana as standalone JTA Transaction Manager implementation, and Hibernate as JPA Adapter.
+Most of the configuration is automatically configured by Spring-Boot using AutoConfiguration and you can see the related properties in `application.properties` and `application-local.properties`/`application-openshift.properties`, depending on the environment you are using.
+
+== Trying out the example on your local machine
+=== External systems
+
+Start MySQL:
+
+----
+WORK_DIR="$HOME/.local/mysql"
+docker run --name db-mysql \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -v $WORK_DIR:/var/lib/mysql \
+  -d -p 3306:3306 mysql
+----
+
+----
+docker exec -it db-mysql mysql -uroot -proot -e \
+  "CREATE DATABASE testdb CHARACTER SET utf8mb4;
+   CREATE USER 'admin'@'%' IDENTIFIED WITH mysql_native_password BY 'admin';
+   GRANT CREATE,SELECT,INSERT,UPDATE,DELETE ON testdb.* TO 'admin'@'%';
+   GRANT XA_RECOVER_ADMIN on *.* to 'admin'@'%';
+   FLUSH PRIVILEGES;"
+----
+
+----
+docker exec -it db-mysql mysql testdb -uadmin -padmin -e \
+  "CREATE TABLE IF NOT EXISTS audit_log (
+    id SERIAL PRIMARY KEY,
+    message VARCHAR(255) NOT NULL
+  );"
+----
+
+Start Artemis:
+
+----
+docker run --name artemis \
+  -e AMQ_USER=admin \
+  -e AMQ_PASSWORD=admin \
+  -d -p 61616:61616 \
+  quay.io/artemiscloud/activemq-artemis-broker
+----
+
+=== How to run
+
+You can run this example using:
+
+----
+mvn clean spring-boot:run
+----
+
+Test the service endpoint from another terminal:
+
+----
+ADDRESS="http://localhost:8080/api"
+curl -X POST $ADDRESS/messages/hello
+curl $ADDRESS/messages
+----
+
+Two messages should appear in the database: `hello` and `hello-ok` that indicate that everything worked correctly.
+
+
+Test rollback by calling the service with "fail" message:
+
+----
+curl -X POST $ADDRESS/messages/fail
+----
+
+You should not find any trace of the message when querying the messages.
+
+Test the recovery by calling the service with "crash" message:
+
+----
+curl -X POST $ADDRESS/messages/crash
+----
+
+The `crash` message causes the application to crash before commiting the transaction, therefore after the process ends you won't see any message in the database.
+
+You can examine the database table directly for example with following command:
+
+----
+docker exec -it db-mysql mysql testdb -uadmin -padmin -e "select * from audit_log;"
+----
+
+You can restart the application with `mvn spring-boot:run`.
+
+----
+IMPORTANT: Do not use maven "clean" goal in the next step, as the transaction manager logs are stored in "target" directory
+----
+
+After a short while the transaction recovery will happen and you will see the expected messages in the database.
+
+The crash process is controller by two things:
+
+- message has the word `crash` in the body
+- marker file `target/crashed` doesn't exist
+
+If you want to repeat the crash process, make sure the marker file does not exist.
+
+== Trying out the example on OpenShift
+
+Everything mentioned in previous chapter is also applicable when running the example on OpenShift.
+On OpenShift the application is deployed as a `StatefulSet` with `2` replicas and you will be communicating only with the second pod (see `OpenShift Narayana recovery controller` section below for explanation).
+
+This example uses a `PersistentVolume` as a shared storage between the multiple pods of the StatefulSet.
+Depending on the OpenShift configuration, there may be changes needed to the link:src/main/jkube/statefulset.yml[statefulset.yml] file.
+
+First, start with creating a new OpenShift project:
+
+----
+oc new-project csb-example
+----
+
+=== External systems
+
+Create a new deployment for MySQL:
+
+----
+oc new-app mysql -e MYSQL_ROOT_PASSWORD=root
+----
+
+When the pod is ready, create the necessary schema and user:
+
+----
+oc exec deployment/mysql -- mysql -uroot -e \
+    "CREATE DATABASE testdb CHARACTER SET utf8mb4;
+     CREATE USER 'admin'@'%' IDENTIFIED WITH mysql_native_password BY 'admin';
+     GRANT CREATE,SELECT,INSERT,UPDATE,DELETE ON testdb.* TO 'admin'@'%';
+     GRANT XA_RECOVER_ADMIN on *.* to 'admin'@'%';
+     FLUSH PRIVILEGES;"
+----
+
+----
+oc exec deployment/mysql -- mysql testdb -uadmin -padmin -e \
+    "CREATE TABLE IF NOT EXISTS audit_log (
+         id SERIAL PRIMARY KEY,
+         message VARCHAR(255) NOT NULL
+     );"
+----
+
+Create a new deployment for Artemis:
+
+----
+oc new-app quay.io/artemiscloud/activemq-artemis-broker -e AMQ_USER=admin -e AMQ_PASSWORD=admin
+----
+
+Patch the default `activemq-artemis-broker` service to serve the `61616` port:
+
+----
+oc patch service/activemq-artemis-broker -p '{"spec":{"ports":[{"name":"61616-tcp", "port": 61616, "protocol": "TCP", "targetPort": 61616}]}}'
+----
+
+=== How to run
+
+The application is deployed using the `openshift-maven-plugin` that takes care of creating all the necessary OpenShift resources.
+
+Simply use the following command to deploy the application:
+
+----
+mvn clean package -Popenshift
+----
+
+After both application pods reach the `Ready` state, you can try the same steps as in the local machine deployment.
+
+To get the address of the application use:
+
+----
+ADDRESS="http://$(oc get route spring-boot-jta-jpa-autoconfigure -o jsonpath='{.spec.host}')/api"
+----
+
+To view the database content:
+
+----
+oc exec deployment/mysql -- mysql testdb -uadmin -padmin -e "select * from audit_log;"
+----
+
+The shared storage that is mounted to the pods that is used to store the transaction manager logs is mounted as `/tmp/storage`.
+
+You can remove the crash marker file with:
+
+----
+oc exec statefulset/spring-boot-jta-jpa-autoconfigure -- rm -f /tmp/storage/crashed
+----
+
+=== OpenShift Narayana recovery controller
+
+One part of the narayana-spring-boot project is a special recovery controller that watches the configured OpenShift `StatefulSet` and guarantees that when the application is scaled down, all instances, that are terminated, complete all their work correctly without leaving pending transactions.
+The scale-down operation is rolled back by the controller if the recovery manager is not been able to flush all pending work before terminating.
+This special recovery controller always runs on the `first pod` of the StatefulSet (the pod with `-0` suffix).
+
+You can simulate this behavior by sending the `crash` message, immediately followed by scaling down the statefulset:
+
+----
+curl -X POST $ADDRESS/messages/crash && oc scale statefulset spring-boot-jta-jpa-autoconfigure --replicas 1
+----
+
+After a while the recovery controller will scale the statefulset back to two replicas and the transaction is recovered and commited.
+
+You can see in the logs of `spring-boot-jpa-jta-autoconfigure-0` the following messages:
+
+----
+WARN [scheduling-1] me.snowdrop.boot.narayana.openshift.recovery.StatefulsetRecoveryController Pod spring-boot-jta-jpa-autoconfigure-1 has pending work and must be restored again
+INFO [scheduling-1] me.snowdrop.boot.narayana.openshift.recovery.StatefulsetRecoveryController Statefulset spring-boot-jta-jpa-autoconfigure successfully scaled to 2 replicas
+----
+
+After finishing its pending work the statefulset can be scaled down as usual.
+
+=== Help and contributions
+
+If you hit any problem using Camel or have some feedback, then please https://camel.apache.org/support.html[let us know].
+
+We also love contributors, so https://camel.apache.org/contributing.html[get involved] :-)
+
+The Camel riders!
