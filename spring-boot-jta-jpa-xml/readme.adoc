@@ -1,0 +1,153 @@
+= Camel Example Spring Boot JTA
+
+This example demonstrates how to run a Camel Service on Spring Boot that supports JTA transactions on two external transactional resources: a database (MySQL) and a message broker (Artemis).
+
+We use Narayana as standalone JTA Transaction Manager implementation, and Hibernate as JPA Adapter.
+Most of the configuration is in `src/main/resources/spring-camel.xml` with no auto-configuration magic, in order to show all components needed to support distributed transactions without a full blown application server.
+
+If you want to use the AutoConfiguration feature, check out the link:../spring-boot-jta-jpa-autoconfigure[spring-boot-jta-jpa-autoconfigure] example.
+
+== Trying out the example on your local machine
+
+=== External systems
+
+Start MySQL:
+
+----
+WORK_DIR="$HOME/.local/mysql"
+docker run --name db-mysql \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -v $WORK_DIR:/var/lib/mysql \
+  -d -p 3306:3306 mysql
+----
+
+----
+docker exec -it db-mysql mysql -uroot -proot -e \
+  "CREATE DATABASE testdb CHARACTER SET utf8mb4;
+   CREATE USER 'admin'@'%' IDENTIFIED WITH mysql_native_password BY 'admin';
+   GRANT CREATE,SELECT,INSERT,UPDATE,DELETE ON testdb.* TO 'admin'@'%';
+   GRANT XA_RECOVER_ADMIN on *.* to 'admin'@'%';
+   FLUSH PRIVILEGES;"
+----
+
+----
+docker exec -it db-mysql mysql testdb -uadmin -padmin -e \
+  "CREATE TABLE IF NOT EXISTS audit_log (
+    id SERIAL PRIMARY KEY,
+    message VARCHAR(255) NOT NULL
+  );"
+----
+
+Start Artemis:
+
+----
+docker run --name artemis \
+  -e AMQ_USER=admin \
+  -e AMQ_PASSWORD=admin \
+  -d -p 61616:61616 \
+  quay.io/artemiscloud/activemq-artemis-broker
+----
+
+=== How to run
+
+You can run this example using:
+
+----
+mvn clean spring-boot:run
+----
+
+Test the service endpoint from another terminal:
+
+----
+ADDRESS="http://localhost:8080/api"
+curl -X POST $ADDRESS/messages/hello
+curl $ADDRESS/messages
+----
+
+Two messages should appear in the database: `hello` and `hello-ok` that indicate that everything worked correctly.
+
+Test rollback by calling the service with "fail" message:
+
+----
+curl -X POST $ADDRESS/messages/fail
+----
+
+You should not find any trace of the message when querying the messages.
+
+== Trying out the example on OpenShift
+
+Everything mentioned in previous chapter is also applicable when running the example on OpenShift.
+On OpenShift the application is deployed as a `DeploymentConfig` using the `openshift-maven-plugin` that takes care of creating all the necessary OpenShift resources.
+
+First, start with creating a new OpenShift project:
+
+----
+oc new-project csb-example
+----
+
+=== External systems
+
+Create a new deployment for MySQL:
+
+----
+oc new-app mysql -e MYSQL_ROOT_PASSWORD=root
+----
+
+When the pod is ready, create the necessary schema and user:
+
+----
+oc exec deployment/mysql -- mysql -uroot -e \
+    "CREATE DATABASE testdb CHARACTER SET utf8mb4;
+     CREATE USER 'admin'@'%' IDENTIFIED WITH mysql_native_password BY 'admin';
+     GRANT CREATE,SELECT,INSERT,UPDATE,DELETE ON testdb.* TO 'admin'@'%';
+     GRANT XA_RECOVER_ADMIN on *.* to 'admin'@'%';
+     FLUSH PRIVILEGES;"
+----
+
+----
+oc exec deployment/mysql -- mysql testdb -uadmin -padmin -e \
+    "CREATE TABLE IF NOT EXISTS audit_log (
+         id SERIAL PRIMARY KEY,
+         message VARCHAR(255) NOT NULL
+     );"
+----
+
+Create a new deployment for Artemis:
+
+----
+oc new-app quay.io/artemiscloud/activemq-artemis-broker -e AMQ_USER=admin -e AMQ_PASSWORD=admin
+----
+
+Patch the default `activemq-artemis-broker` service to serve the `61616` port:
+
+----
+oc patch service/activemq-artemis-broker -p '{"spec":{"ports":[{"name":"61616-tcp", "port": 61616, "protocol": "TCP", "targetPort": 61616}]}}'
+----
+
+=== How to run
+
+Simply use the following command to deploy the application:
+
+----
+mvn clean package -Popenshift
+----
+
+After the application pod reaches the `Ready` state, you can try the same steps as in the local machine deployment.
+
+To get the address of the application use:
+
+----
+ADDRESS="http://$(oc get route spring-boot-jta-jpa -o jsonpath='{.spec.host}')/api"
+----
+
+=== Next steps
+
+If you want to try out Narayana OpenShift integration and/or transaction recovery, check out the link:../spring-boot-jta-jpa-autoconfigure[spring-boot-jta-jpa-autoconfigure] example.
+
+=== Help and contributions
+
+If you hit any problem using Camel or have some feedback, then please https://camel.apache.org/support.html[let us know].
+
+We also love contributors, so https://camel.apache.org/contributing.html[get involved] :-)
+
+The Camel riders!
