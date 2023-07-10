@@ -1,24 +1,81 @@
 == Camel Example Spring Boot and ActiveMQ AMQP
 
-This example shows how to work with a simple Apache Camel application using Spring Boot and Apache ActiveMQ.
+This example shows how to work with a simple Apache Camel application using Spring Boot and Apache ActiveMQ through the AMQP protocol.
 
-=== Preparing ActiveMQ brokers
+== Trying out the example on your local machine
 
-From Apache ActiveMQ you can download the broker as a `.zip` or `.tar.gz` file.
+Start the ActiveMQ broker in a docker container:
 
-Unzip/tar the archive, and start a terminal.
-
-Change directory to the unzipped directory and start the broker.
-
-    bin/activemq console
-
-Which runs the broker in the foreground and logs to the console.
+----
+docker run --name artemis \
+  -e AMQ_USER=admin \
+  -e AMQ_PASSWORD=admin \
+  -d -p 61616:61616 \
+  quay.io/artemiscloud/activemq-artemis-broker
+----
 
 === How to run the example
 
 You can run this example using
 
     mvn spring-boot:run
+
+The application exposes a REST endpoint that you can use to send a message to the ActiveMQ queue through the AMQP procotol. This message is then received in a second route and printed to the application log.
+
+You can send the message with a following command:
+
+----
+curl -X POST -H "Content-Type: text/plain" -d "Hello AMQP" localhost:8080/amqp/
+----
+
+In the application log, you will see the following lines:
+
+----
+...
+[  XNIO-1 task-2] route1                                   : Message sent to AMQP queue
+...
+[nsumer[example]] route2                                   : Received message from AMQP queue: Hello AMQP
+----
+
+== Trying out the example on OpenShift
+
+First, start with creating a new OpenShift project:
+
+----
+oc new-project csb-example-amqp
+----
+
+Start a new deployment for Artemis:
+
+----
+oc new-app quay.io/artemiscloud/activemq-artemis-broker -e AMQ_USER=admin -e AMQ_PASSWORD=admin
+----
+
+Patch the default `activemq-artemis-broker` service to serve the `5672` port:
+
+----
+oc patch service/activemq-artemis-broker -p '{"spec":{"ports":[{"name":"5672-tcp", "port": 5672, "protocol": "TCP", "targetPort": 5672}]}}'
+----
+
+=== How to run
+
+The application is deployed using the `openshift-maven-plugin` that takes care of creating all the necessary OpenShift resources.
+
+Simply use the following command to deploy the application:
+
+----
+mvn clean package -Popenshift
+----
+
+After the application pod reaches the `Ready` state, you can try the same steps as in the local machine deployment.
+
+To send the message to the application use:
+
+----
+curl -X POST -H "Content-Type: text/plain" -d "Hello AMQP" http://$(oc get route camel-example-spring-boot-amqp -o jsonpath='{.spec.host}')/amqp/
+----
+
+To view the application logs, use `oc logs dc/camel-example-spring-boot-amqp`
 
 === Using Camel components
 
