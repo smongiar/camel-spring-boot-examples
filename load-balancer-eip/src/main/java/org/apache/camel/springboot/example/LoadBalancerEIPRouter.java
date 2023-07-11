@@ -17,120 +17,88 @@
 package org.apache.camel.springboot.example;
 
 import org.apache.camel.builder.RouteBuilder;
-
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class LoadBalancerEIPRouter extends RouteBuilder {
-	@Override
-	public void configure() throws Exception {
-		// @formatter:off
+    @Override
+    public void configure() throws Exception {
+        // @formatter:off
+		restConfiguration().component("servlet");
+		rest()
+			.post("/round-robin").to("direct:loadbalancer-round-robin")
+			.post("/random").to("direct:loadbalancer-random")
+			.post("/sticky").to("direct:loadbalancer-sticky")
+			.post("/topic").to("direct:loadbalancer-topic")
+			.post("/failover").to("direct:loadbalancer-failover")
+			.post("/weighted").to("direct:loadbalancer-weighted-round-robin")
+			.post("/custom").to("direct:loadbalancer-custom");
 
 		// round-robin load balancer
 		from("direct:loadbalancer-round-robin")
 				.loadBalance().roundRobin()
-				.to("mock:a")
-				.to("mock:b")
+				.to("direct:roundrobin1")
+				.to("direct:roundrobin2")
 				.end();
-
 
 		// random load balancer
 		from("direct:loadbalancer-random")
 				.loadBalance().random()
-				.to("mock:c")
-				.to("mock:d");
-
+				.to("direct:random1")
+				.to("direct:random2");
 
 		// sticky load balancer
 		from("direct:loadbalancer-sticky")
-				// load balancer with sticky strategy
-				.loadBalance()
 				// expression parameter to calculate the correlation key
-					.sticky(header("correlation-key"))
-				// load balance across 2 producers
-					.to("mock:e").to("mock:f")
-				.end();
-
+				.loadBalance().sticky(header("correlation-key"))
+				.to("direct:sticky1")
+				.to("direct:sticky2");
 
 		// topic ("fan out") load-balancer
 		from("direct:loadbalancer-topic")
+				.id("start")
 				.loadBalance().topic()
-				.to("mock:j", "mock:k");
-
+				.to("direct:topic1")
+				.to("direct:topic2")
+				.end();
 
 		// failover load-balancer
 		from("direct:loadbalancer-failover")
 				.loadBalance()
 				// failover on this Exception to subsequent producer
 				.failover(MyException.class)
-				.to("direct:l", "direct:m");
-
-		from("direct:l")
-				.choice()
-					.when(body().isEqualTo("E"))
-						.throwException(new MyException("direct:l"))
-					.end()
-				.end()
-			.to("mock:l");
-
-		from("direct:m")
-				.to("mock:m");
-		// END of failover load-balancer
-
-
-
-		// failover load-balancer round robin without error handler
-		from("direct:loadbalancer-failover-round-robin-no-error-handler")
-				.loadBalance()
-				// failover immediately in case of exception and do not use errorHandler
-				.failover(-1, false, true, MyException.class, Exception.class)
-				.to("direct:n", "direct:o", "direct:p", "direct:q");
-
-		from("direct:n")
-				.choice()
-					.when(constant(true))
-						.throwException(new MyException("from direct:n"))
-					.end()
-				.end()
-			.to("mock:n");
-
-		from("direct:o")
-				.choice()
-					.when(constant(true))
-						.throwException(new MyException("from direct:n"))
-					.end()
-				.end()
-			.to("mock:o");
-
-		from("direct:p")
-				.choice()
-					.when(body().isEqualTo("E"))
-						.throwException(new RuntimeException())
-					.end()
-				.end()
-			.to("mock:p");
-
-		from("direct:q")
-				.to("mock:q");
-		// END of failover load-balancer round robin without error handler
-
+				.to("direct:failover1")
+				.to("direct:failover2");
+		from("direct:failover1")
+				.log("Failover: Route 1 received message ${body}")
+				.log("Failover: Route 1 throws an exception to simulate processing error")
+				.process(exchange -> {
+					throw new MyException("Failover");
+				});
+		from("direct:failover2").log("Failover: Route 2 received message ${body}");
 
 		// weighted load-balancer round robin
-		String distributionRatio = "2,1";
-
+		final String distributionRatio = "3,1";
 		from("direct:loadbalancer-weighted-round-robin")
 				.loadBalance().weighted(true, distributionRatio)
-				.to("mock:w", "mock:x");
-		// ENF of weighted load-balancer round robin
-
+				.to("direct:weighted1")
+				.to("direct:weighted2");
 
 		// custom load balancer
-		from ("direct:loadbalancer-custom")
+		from("direct:loadbalancer-custom")
 				// custom load balancer
 				.loadBalance(new CustomLoadBalancer())
-				.to("mock:g", "mock:h");
+				.to("direct:custom1")
+				.to("direct:custom2");
 
-		// @formatter:off
+		// Create the direct routes that only log the received message
+		for (String type : List.of("RoundRobin", "Random", "Sticky", "Topic", "Weighted", "Custom")) {
+			for (int i = 1; i <= 2; i++) {
+				fromF("direct:%s%d", type.toLowerCase(), i).log(String.format("%s: Route %d received message ${body}", type, i));
+			}
+		}
 	}
 
 }

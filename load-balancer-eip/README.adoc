@@ -2,20 +2,147 @@
 
 This example shows several examples of Load Balancer EIP with Apache Camel application using Spring Boot.
 
-1. Round-robin - The exchanges are selected in a round robin fashion. This is a well known and classic policy, which spreads the load evenly.
-2. Random load - A random endpoint is selected for each exchange.
-3. Sticky - Sticky load balancing using an Expression to calculate a correlation key to perform the sticky load balancing; rather like jsessionid in the web or JMSXGroupID in JMS.
-4. Topic - Topic which sends to all destinations (rather like JMS Topics)
-5. Failover - In case of failures the exchange will be tried on the next endpoint.
-6. Weighted round-robin - The weighted load balancing policy allows you to specify a processing load distribution ratio for each server with respect to the others. In addition to the weight, endpoint selection is then further refined using round-robin distribution based on weight.
-7. Custom - The preferred way of using a custom Load Balancer is to use this policy, as the ref attribute is not supported anymore.
-
 === How to run
 
 You can run this example using
 
-    mvn test
+----
+mvn spring-boot:run
+----
+The example contains a rest endpoint to trigger various loadbalancers.
 
+==== Round-robin
+
+You can send 10 messages to the endpoint with:
+----
+for i in {1..10}; do curl -X POST -H "Content-Type: text/plain" -d "$i" http://localhost:8080/loadbalancer/round-robin/; done
+----
+
+In the application logs you will see, that the messages are distributed evenly between two defined endpoint routes:
+
+----
+RoundRobin: Route 1 received message 1
+RoundRobin: Route 2 received message 2
+RoundRobin: Route 1 received message 3
+RoundRobin: Route 2 received message 4
+RoundRobin: Route 1 received message 5
+RoundRobin: Route 2 received message 6
+RoundRobin: Route 1 received message 7
+RoundRobin: Route 2 received message 8
+RoundRobin: Route 1 received message 9
+RoundRobin: Route 2 received message 10
+----
+
+==== Random load
+A random endpoint is selected for each exchange.
+
+You can send 10 messages to the endpoint with:
+----
+for i in {1..10}; do curl -X POST -H "Content-Type: text/plain" -d "$i" http://localhost:8080/loadbalancer/random/; done
+----
+
+The messages are loadbalanced randomly across two endpoints:
+
+----
+Random: Route 1 received message 1
+Random: Route 1 received message 2
+Random: Route 2 received message 3
+Random: Route 1 received message 4
+Random: Route 1 received message 5
+Random: Route 1 received message 6
+Random: Route 2 received message 7
+Random: Route 1 received message 8
+Random: Route 1 received message 9
+Random: Route 2 received message 10
+----
+
+==== Sticky
+Sticky load balancing is using an Expression to calculate a correlation key to perform the sticky load balancing; like jsessionid in the web or JMSXGroupID in JMS.
+
+The header used in this example is called `correlation-key`, so sending the same value over multiple requests will cause the message to be routed to the same endpoint.
+
+First send a header value `abc`
+----
+for i in {1..3}; do curl -X POST -H "Content-Type: text/plain" -H "correlation-key: abc" -d "Foo" http://localhost:8080/loadbalancer/sticky/; done
+----
+
+----
+Sticky: Route 1 received message Foo
+Sticky: Route 1 received message Foo
+Sticky: Route 1 received message Foo
+----
+
+A different header value `def` will cause using a different route:
+----
+for i in {1..4}; do curl -X POST -H "Content-Type: text/plain" -H "correlation-key: def" -d "Bar" http://localhost:8080/loadbalancer/sticky/; done
+----
+
+----
+Sticky: Route 2 received message Bar
+Sticky: Route 2 received message Bar
+Sticky: Route 2 received message Bar
+Sticky: Route 2 received message Bar
+----
+
+Changing the value back to `abc` will use the same route as previously:
+
+----
+for i in {1..2}; do curl -X POST -H "Content-Type: text/plain" -H "correlation-key: abc" -d "Baz" http://localhost:8080/loadbalancer/sticky/; done
+----
+
+----
+Sticky: Route 1 received message Baz
+Sticky: Route 1 received message Baz
+----
+
+==== Topic
+Sends the message to all destinations (like JMS Topics).
+
+----
+for i in {1..3}; do curl -X POST -H "Content-Type: text/plain" -d "$i" http://localhost:8080/loadbalancer/topic/; done
+----
+
+----
+Topic: Route 1 received message 1
+Topic: Route 2 received message 1
+Topic: Route 1 received message 2
+Topic: Route 2 received message 2
+Topic: Route 1 received message 3
+Topic: Route 2 received message 3
+----
+
+==== Failover
+In case of failures the exchange will be tried on the next endpoint. In this example the first endpoint always throws an exception.
+
+----
+curl -X POST -H "Content-Type: text/plain" -d "Success" http://localhost:8080/loadbalancer/failover/
+----
+
+----
+Failover: Endpoint 1 received message Success
+Failover: Endpoint 1 throws an exception to simulate processing error
+...
+Failover: Endpoint 2 received message Success
+----
+
+==== Weighted Round-Robin
+The weighted load balancing policy allows you to specify a processing load distribution ratio for each server with respect to the others. In addition to the weight, endpoint selection is then further refined using round-robin distribution based on weight. This example defines the weight as `3,1` so when sending a total of 4 messages, 3 will go to the first endpoint and one will go to the second.
+
+----
+for i in {1..4}; do curl -X POST -H "Content-Type: text/plain" -d "$i" http://localhost:8080/loadbalancer/weighted/; done
+----
+
+----
+Weighted: Route 1 received message 1
+Weighted: Route 2 received message 2
+Weighted: Route 1 received message 3
+Weighted: Route 1 received message 4
+----
+
+
+==== Custom
+
+You can implement your own load balancer by extending the `LoadBalancerSupport` class and overriding the `process` method to do the load balancing.
 
 === Help and contributions
 
