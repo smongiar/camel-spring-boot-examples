@@ -19,6 +19,7 @@ package org.apache.camel.example.spring.boot.paho.mqtt5;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.camel.LoggingLevel.DEBUG;
@@ -33,37 +34,35 @@ public class PahoMqtt5RouteBuilder extends RouteBuilder {
     public void configure() throws Exception {
 
         // The following consumers share the same conversation group (group1) and will be loadbalanced
-        from("paho-mqtt5:{{consumer.topic}}?brokerUrl={{broker.url}}&clientId=consumerA")
+        from("paho-mqtt5:{{consumer.topic}}?clientId=consumerA")
                 .id("consumerA")
                 .log(INFO, "CONSUMER A - MESSAGE: ${body}");
 
-        from("paho-mqtt5:{{consumer.topic}}?brokerUrl={{broker.url}}&clientId=consumerB")
+        from("paho-mqtt5:{{consumer.topic}}?clientId=consumerB")
                 .id("consumerB")
                 .log(INFO, "CONSUMER B - MESSAGE: ${body}");
 
-        from("paho-mqtt5:{{consumer.topic}}?brokerUrl={{broker.url}}&clientId=consumerC")
+        from("paho-mqtt5:{{consumer.topic}}?clientId=consumerC")
                 .id("consumerC")
                 .log(INFO, "CONSUMER C - MESSAGE: ${body}");
 
-        from("paho-mqtt5:{{consumer.topic}}?brokerUrl={{broker.url}}&clientId=consumerD")
+        from("paho-mqtt5:{{consumer.topic}}?clientId=consumerD")
                 .id("consumerD")
                 .log(INFO, "CONSUMER D - MESSAGE: ${body}");
 
-        from("paho-mqtt5:{{consumer.topic}}?brokerUrl={{broker.url}}&clientId=consumerE")
+        from("paho-mqtt5:{{consumer.topic}}?clientId=consumerE")
                 .id("consumerE")
                 .log(INFO, "CONSUMER E - MESSAGE: ${body}");
 
-        from("paho-mqtt5:{{consumer.topic}}?brokerUrl={{broker.url}}&clientId=consumerF")
+        from("paho-mqtt5:{{consumer.topic}}?clientId=consumerF")
                 .id("consumerF")
                 .log(INFO, "CONSUMER F - MESSAGE: ${body}");
 
         // the producer
         from("timer://foo?fixedRate=true&period={{producer.period}}")
                 .id("producer")
-                .process(exchange -> {
-                    exchange.getIn().setBody(counter.getAndIncrement()+" - hello world");
-                })
-                .log(DEBUG,"PRODUCER   - MESSAGE: ${body}")
-                .to("paho-mqtt5:{{producer.topic}}?brokerUrl={{broker.url}}&clientId=producer");
+                .process(exchange -> exchange.getIn().setBody(counter.getAndIncrement() + " - hello world"))
+                .log(DEBUG, "PRODUCER   - MESSAGE: ${body}")
+                .to("paho-mqtt5:{{producer.topic}}?clientId=producer");
     }
 }
