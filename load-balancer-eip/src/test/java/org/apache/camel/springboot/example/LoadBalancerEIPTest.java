@@ -17,169 +17,153 @@
 package org.apache.camel.springboot.example;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.ConsumerTemplate;
+import org.apache.camel.EndpointInject;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.camel.test.spring.junit5.MockEndpoints;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @CamelSpringBootTest
 @SpringBootTest(classes = Application.class)
+@MockEndpoints("direct:*")
 public class LoadBalancerEIPTest {
 
-	@Autowired
-	private CamelContext camelContext;
+    @Autowired
+    private CamelContext camelContext;
 
-	private ProducerTemplate producerTemplate;
+    @Autowired
+    private ProducerTemplate producerTemplate;
 
-	@BeforeEach
-	public void setUp() {
-		producerTemplate = camelContext.createProducerTemplate();
-	}
+    @Autowired
+    private ConsumerTemplate consumerTemplate;
 
-	@Test
-	public void testLoadBalancer() throws InterruptedException {
-		MockEndpoint mockA = camelContext.getEndpoint("mock:a", MockEndpoint.class);
-		MockEndpoint mockB = camelContext.getEndpoint("mock:b", MockEndpoint.class);
+    @EndpointInject("mock:direct:topic1")
+    private MockEndpoint mockCamel;
 
-		mockA.expectedBodiesReceived("A", "C");
-		mockB.expectedBodiesReceived("B", "D");
+    @Test
+    public void roundRobinTest() throws Exception {
+        final int messages = 10;
+        final List<Integer> bodies = IntStream.range(0, messages).boxed().toList();
 
-		producerTemplate.sendBody("direct:loadbalancer-round-robin", "A");
-		producerTemplate.sendBody("direct:loadbalancer-round-robin", "B");
-		producerTemplate.sendBody("direct:loadbalancer-round-robin", "C");
-		producerTemplate.sendBody("direct:loadbalancer-round-robin", "D");
+        final MockEndpoint endpoint1 = camelContext.getEndpoint("mock:direct:roundrobin1", MockEndpoint.class);
+        endpoint1.setExpectedCount(messages / 2);
+        endpoint1.expectedBodiesReceived(bodies.stream().filter(i -> i % 2 == 0).toArray());
 
-		MockEndpoint.assertIsSatisfied(camelContext);
-	}
+        final MockEndpoint endpoint2 = camelContext.getEndpoint("mock:direct:roundrobin2", MockEndpoint.class);
+        endpoint2.setExpectedCount(messages / 2);
+        endpoint2.expectedBodiesReceived(bodies.stream().filter(i -> i % 2 == 1).toArray());
 
+        for (int i = 0; i < messages; i++) {
+            producerTemplate.sendBody("direct:loadbalancer-round-robin", i);
+        }
 
-	@Test
-	public void testRandomLoadBalancer() {
-		MockEndpoint mockC = camelContext.getEndpoint("mock:c", MockEndpoint.class);
-		MockEndpoint mockD = camelContext.getEndpoint("mock:d", MockEndpoint.class);
+        endpoint1.assertIsSatisfied();
+        endpoint2.assertIsSatisfied();
+    }
 
-		for (int i = 0 ; i < 10 ; i++){
-			producerTemplate.sendBody("direct:loadbalancer-random", i);
-		}
+    @Test
+    public void randomTest() {
+        final int messages = 10;
 
-		assertEquals(10, mockC.getReceivedCounter() + mockD.getReceivedCounter());
-	}
+        final MockEndpoint endpoint1 = camelContext.getEndpoint("mock:direct:random1", MockEndpoint.class);
+        final MockEndpoint endpoint2 = camelContext.getEndpoint("mock:direct:random2", MockEndpoint.class);
 
-	@Test
-	public void testStickyLoadBalancer() throws InterruptedException {
-		MockEndpoint mockE = camelContext.getEndpoint("mock:e", MockEndpoint.class);
-		MockEndpoint mockF = camelContext.getEndpoint("mock:f", MockEndpoint.class);
+        for (int i = 0; i < messages; i++) {
+            producerTemplate.sendBody("direct:loadbalancer-random", i);
+        }
 
-		mockE.expectedBodiesReceived("A", "E");
-		mockF.expectedBodiesReceived("B", "C", "D");
+        assertEquals(messages, endpoint1.getReceivedCounter() + endpoint2.getReceivedCounter());
+    }
 
-		producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "A", "correlation-key",  "vowel");
-		producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "B", "correlation-key",  "consonant");
-		producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "C", "correlation-key",  "consonant");
-		producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "D", "correlation-key",  "consonant");
-		producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "E", "correlation-key",  "vowel");
+    @Test
+    public void stickyTest() throws Exception {
+        final MockEndpoint endpoint1 = camelContext.getEndpoint("mock:direct:sticky1", MockEndpoint.class);
+        endpoint1.setExpectedCount(2);
+        endpoint1.expectedBodiesReceived("A", "E");
+        final MockEndpoint endpoint2 = camelContext.getEndpoint("mock:direct:sticky2", MockEndpoint.class);
+        endpoint2.setExpectedCount(3);
+        endpoint2.expectedBodiesReceived("B", "C", "D");
 
-		MockEndpoint.assertIsSatisfied(camelContext);
-	}
+        producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "A", "correlation-key", "vowel");
+        producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "B", "correlation-key", "consonant");
+        producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "C", "correlation-key", "consonant");
+        producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "D", "correlation-key", "consonant");
+        producerTemplate.sendBodyAndHeader("direct:loadbalancer-sticky", "E", "correlation-key", "vowel");
 
-	@Test
-	public void testTopicLoadBalancer() throws Exception {
-		MockEndpoint mockJ = camelContext.getEndpoint("mock:j", MockEndpoint.class);
-		MockEndpoint mockK = camelContext.getEndpoint("mock:k", MockEndpoint.class);
+        endpoint1.assertIsSatisfied();
+        endpoint2.assertIsSatisfied();
+    }
 
-		mockJ.expectedBodiesReceived("A", "B", "C", "D", "E");
-		mockK.expectedBodiesReceived("A", "B", "C", "D", "E");
+    @Test
+    public void topicTest() throws Exception {
+        final int messages = 10;
 
-		producerTemplate.sendBody("direct:loadbalancer-topic", "A");
-		producerTemplate.sendBody("direct:loadbalancer-topic", "B");
-		producerTemplate.sendBody("direct:loadbalancer-topic", "C");
-		producerTemplate.sendBody("direct:loadbalancer-topic", "D");
-		producerTemplate.sendBody("direct:loadbalancer-topic", "E");
+        final MockEndpoint endpoint1 = camelContext.getEndpoint("mock:direct:topic1", MockEndpoint.class);
+        endpoint1.setExpectedCount(messages);
+        endpoint1.expectedBodiesReceived(IntStream.range(0, messages).boxed().toArray());
+        final MockEndpoint endpoint2 = camelContext.getEndpoint("mock:direct:topic2", MockEndpoint.class);
+        endpoint2.setExpectedCount(messages);
+        endpoint2.expectedBodiesReceived(IntStream.range(0, messages).boxed().toArray());
 
-		MockEndpoint.assertIsSatisfied(camelContext);
-	}
+        for (int i = 0; i < messages; i++) {
+            producerTemplate.sendBody("direct:loadbalancer-topic", i);
+        }
 
-	@Test
-	public void testFailoverLoadBalancer() throws Exception {
-		MockEndpoint mockL = camelContext.getEndpoint("mock:l", MockEndpoint.class);
-		MockEndpoint mockM = camelContext.getEndpoint("mock:m", MockEndpoint.class);
+        endpoint1.assertIsSatisfied();
+        endpoint2.assertIsSatisfied();
+    }
 
-		mockL.expectedBodiesReceived("A", "B", "C", "D");
-		mockM.expectedBodiesReceived("E");
+    @Test
+    public void failoverTest() throws Exception {
+        final MockEndpoint endpoint1 = camelContext.getEndpoint("mock:direct:failover1", MockEndpoint.class);
+        endpoint1.setExpectedCount(0);
+        final MockEndpoint endpoint2 = camelContext.getEndpoint("mock:direct:failover2", MockEndpoint.class);
+        endpoint1.setExpectedCount(1);
 
-		producerTemplate.sendBody("direct:loadbalancer-failover", "A");
-		producerTemplate.sendBody("direct:loadbalancer-failover", "B");
-		producerTemplate.sendBody("direct:loadbalancer-failover", "C");
-		producerTemplate.sendBody("direct:loadbalancer-failover", "E");
-		producerTemplate.sendBody("direct:loadbalancer-failover", "D");
+        producerTemplate.sendBody("direct:loadbalancer-failover", "A");
+        endpoint1.assertIsSatisfied();
+        endpoint2.assertIsSatisfied();
+    }
 
-		MockEndpoint.assertIsSatisfied(camelContext);
-	}
+    @Test
+    public void weightTest() throws Exception {
+        final int messages = 8;
+        final MockEndpoint endpoint1 = camelContext.getEndpoint("mock:direct:weighted1", MockEndpoint.class);
+        endpoint1.setExpectedCount(6);
+        final MockEndpoint endpoint2 = camelContext.getEndpoint("mock:direct:weighted2", MockEndpoint.class);
+        endpoint2.setExpectedCount(2);
 
-	@Test
-	public void testFailoverRoundRobinLoadBalancer() throws Exception {
-		MockEndpoint mockN = camelContext.getEndpoint("mock:n", MockEndpoint.class);
-		MockEndpoint mockO = camelContext.getEndpoint("mock:o", MockEndpoint.class);
-		MockEndpoint mockP = camelContext.getEndpoint("mock:p", MockEndpoint.class);
-		MockEndpoint mockQ = camelContext.getEndpoint("mock:q", MockEndpoint.class);
+        for (int i = 0; i < messages; i++) {
+            producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", i);
+        }
+        endpoint1.assertIsSatisfied();
+        endpoint2.assertIsSatisfied();
+    }
 
-		mockN.expectedMessageCount(0);
-		mockO.expectedMessageCount(0);
-		mockP.expectedBodiesReceived("A", "C");
-		mockQ.expectedBodiesReceived("B", "D", "E");
+    @Test
+    public void customTest() throws Exception {
+        final MockEndpoint endpoint1 = camelContext.getEndpoint("mock:direct:custom1", MockEndpoint.class);
+        endpoint1.setExpectedCount(2);
+        endpoint1.expectedBodiesReceived("A", "E");
+        final MockEndpoint endpoint2 = camelContext.getEndpoint("mock:direct:custom2", MockEndpoint.class);
+        endpoint2.setExpectedCount(3);
+        endpoint2.expectedBodiesReceived("B", "C", "D");
 
-		producerTemplate.sendBody("direct:loadbalancer-failover-round-robin-no-error-handler", "A");
-		producerTemplate.sendBody("direct:loadbalancer-failover-round-robin-no-error-handler", "B");
-		producerTemplate.sendBody("direct:loadbalancer-failover-round-robin-no-error-handler", "C");
-		producerTemplate.sendBody("direct:loadbalancer-failover-round-robin-no-error-handler", "D");
-		producerTemplate.sendBody("direct:loadbalancer-failover-round-robin-no-error-handler", "E");
+        for (String s : List.of("A", "B", "C", "D", "E")) {
+            producerTemplate.sendBody("direct:loadbalancer-custom", s);
+        }
 
-		MockEndpoint.assertIsSatisfied(camelContext);
-	}
-
-	@Test
-	public void testWeightedRoundRobinLoadBalancer() throws Exception {
-		MockEndpoint mockW = camelContext.getEndpoint("mock:w", MockEndpoint.class);
-		MockEndpoint mockX  = camelContext.getEndpoint("mock:x", MockEndpoint.class);
-
-		mockW.expectedBodiesReceived("A", "C", "D", "F", "G", "J", "K");
-		mockX.expectedBodiesReceived("B", "E", "H");
-
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "A"); // W
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "B"); // X
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "C"); // W
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "D"); // W
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "E"); // X
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "F"); // W
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "G"); // W
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "H"); // X
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "J"); // W
-		producerTemplate.sendBody("direct:loadbalancer-weighted-round-robin", "K"); // W
-
-		MockEndpoint.assertIsSatisfied(camelContext);
-	}
-
-	@Test
-	public void testCustomLoadBalancer() throws InterruptedException {
-		MockEndpoint mockG = camelContext.getEndpoint("mock:g", MockEndpoint.class);
-		MockEndpoint mockH = camelContext.getEndpoint("mock:h", MockEndpoint.class);
-
-		mockG.expectedBodiesReceived("A", "E");
-		mockH.expectedBodiesReceived("B", "C", "D");
-
-		producerTemplate.sendBody("direct:loadbalancer-custom", "A");
-		producerTemplate.sendBody("direct:loadbalancer-custom", "B");
-		producerTemplate.sendBody("direct:loadbalancer-custom", "C");
-		producerTemplate.sendBody("direct:loadbalancer-custom", "D");
-		producerTemplate.sendBody("direct:loadbalancer-custom", "E");
-
-		MockEndpoint.assertIsSatisfied(camelContext);
-	}
+        endpoint1.assertIsSatisfied();
+        endpoint2.assertIsSatisfied();
+    }
 
 }
