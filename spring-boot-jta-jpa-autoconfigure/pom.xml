@@ -186,16 +186,6 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <generator>
-                                <includes>
-                                    <include>spring-boot</include>
-                                </includes>
-                                <config>
-                                    <spring-boot>
-                                        <from>registry.access.redhat.com/ubi8/openjdk-17</from>
-                                    </spring-boot>
-                                </config>
-                            </generator>
                             <enricher>
                                 <includes>
                                     <include>jkube-controller</include>
