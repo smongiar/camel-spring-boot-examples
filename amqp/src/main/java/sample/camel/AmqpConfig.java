@@ -22,33 +22,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AmqpConfig {
-
-    @Value("${AMQP_HOST}")
-    private String amqpHost;
-    @Value("${AMQP_SERVICE_PORT}")
-    private String amqpPort;
     @Value("${AMQP_SERVICE_USERNAME}")
     private String userName;
     @Value("${AMQP_SERVICE_PASSWORD}")
     private String pass;
     @Value("${AMQP_REMOTE_URI}")
     private String remoteUri;
-
-    public String getAmqpHost() {
-        return amqpHost;
-    }
-
-    public void setAmqpHost(String amqpHost) {
-        this.amqpHost = amqpHost;
-    }
-
-    public String getAmqpPort() {
-        return amqpPort;
-    }
-
-    public void setAmqpPort(String amqpPort) {
-        this.amqpPort = amqpPort;
-    }
 
     public String getUserName() {
         return userName;

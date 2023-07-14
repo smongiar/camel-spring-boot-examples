@@ -20,7 +20,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-//CHECKSTYLE:OFF
 @SpringBootApplication
 @EnableAutoConfiguration
 public class SampleAmqApplication {
@@ -29,4 +28,3 @@ public class SampleAmqApplication {
         SpringApplication.run(SampleAmqApplication.class, args);
     }
 }
-// CHECKSTYLE:ON
