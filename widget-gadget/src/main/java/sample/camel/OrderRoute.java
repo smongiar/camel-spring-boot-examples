@@ -19,6 +19,7 @@ package sample.camel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,9 +28,12 @@ public class OrderRoute extends RouteBuilder {
     @Autowired
     JmsConnectionFactory amqpConnectionFactory;
 
+    @Value("${FILE_LOCATION:src/main/data}")
+    private String fileLocation;
+
     @Override
     public void configure() throws Exception {
-        from("file:src/main/data?noop=true")
+        from("file:" + fileLocation + "?noop=true")
                 .to("amqp:queue:order.queue");
     }
 
