@@ -10,7 +10,7 @@ Start the ActiveMQ broker in a docker container:
 docker run --name artemis \
   -e AMQ_USER=admin \
   -e AMQ_PASSWORD=admin \
-  -d -p 61616:61616 \
+  -d -p 5672:5672 \
   quay.io/artemiscloud/activemq-artemis-broker
 ----
 
