@@ -16,16 +16,16 @@
  */
 package sample.camel;
 
-import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
-import org.junit.jupiter.api.Test;
+import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.Assert.assertTrue;
+import java.util.concurrent.TimeUnit;
 
 @CamelSpringBootTest
 @SpringBootTest(classes = SampleCamelApplication.class)
@@ -40,7 +40,6 @@ public class SampleCamelApplicationTest {
         // route as it uses a timer to trigger
         NotifyBuilder notify = new NotifyBuilder(camelContext).whenDone(1).create();
 
-        assertTrue(notify.matches(10, TimeUnit.SECONDS));
+        Assertions.assertThat(notify.matches(10, TimeUnit.SECONDS)).isTrue();
     }
-
 }
