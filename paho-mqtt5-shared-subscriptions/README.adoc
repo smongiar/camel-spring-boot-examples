@@ -30,24 +30,58 @@ Like non-shared subscriptions, shared subscriptions include a topic filter and s
 It should be noted that if the server is sending a QoS 2 message to the selected subscriber, and the network is interrupted before the distribution is completed, the server will continue to complete the distribution of the message when the subscriber reconnects. If the subscriber's session is terminated before it reconnects, the server will discard the message without attempting to send it to other subscribers. If it is a QoS 1 message, the server can wait for the subscriber to reconnect and continue to complete the distribution, or it can immediately try to distribute the message to other subscribers when the subscriber disconnects. The MQTT protocol does not mandate it. It depends on the specific implementation. However, if its session is terminated while waiting for the subscriber to reconnect, the server will try to send the message to other subscribers.
 
 
-== Run the Quickstart
+== Trying out the example on your local machine
 
-This quickstart use a public MQTT 5 test server available at the time of writing.
-It contains one producer and six consumers that are part of the same conversation group (group1)
+Start the ActiveMQ broker in a docker container:
+----
+docker run --name artemis \
+  -e AMQ_USER=admin \
+  -e AMQ_PASSWORD=admin \
+  -d -p 1883:1883 \
+  quay.io/artemiscloud/activemq-artemis-broker
+----
 
+This quickstart contains one producer and six consumers that are part of the same conversation group (group1).
+This means that everytime a new message is produced to the topic, only one consumer from the group receives the message.
 
-. Build the project
-+
-....
- mvn clean package
-....
+=== How to run the example
 
-. Start the fat jar
-+
-....
- mvn spring-boot:run
-....
-+
+You can run this example using
+
+    mvn spring-boot:run
+
 In the logs, you should see something like this:
-+
+
 image::https://asciinema.org/a/427793.png[link="https://asciinema.org/a/427793"]
+
+== Trying out the example on OpenShift
+
+First, start with creating a new OpenShift project:
+
+----
+oc new-project csb-example-paho-mqtt5
+----
+
+Start a new deployment for Artemis:
+
+----
+oc new-app quay.io/artemiscloud/activemq-artemis-broker -e AMQ_USER=admin -e AMQ_PASSWORD=admin
+----
+
+Patch the default `activemq-artemis-broker` service to serve the `1883` port:
+
+----
+oc patch service/activemq-artemis-broker -p '{"spec":{"ports":[{"name":"1883-tcp", "port": 1883, "protocol": "TCP", "targetPort": 1883}]}}'
+----
+
+=== How to run
+
+The application is deployed using the `openshift-maven-plugin` that takes care of creating all the necessary OpenShift resources.
+
+Simply use the following command to deploy the application:
+
+----
+mvn clean package -Popenshift
+----
+
+and wait until application pod reaches the `Ready` state. After that you will see the expected output in the application's pod log.
