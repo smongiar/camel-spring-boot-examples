@@ -14,23 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.example.kafka.avro;
+package org.apache.camel.springboot.example.avro;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-public class KafkaAvroMessageProcessor  implements Processor {
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaAvroProcessor.class);
-    public void process(Exchange exc) throws Exception {
-        //un-comment this after build
-       /* Employee emp = Employee.newBuilder()
-        .setFirstName("kakarla")
-        .setLastName("Ranjith")
-        .setBirthDate(new java.util.Date().getTime())
-        .build();
-        exc.getOut().setBody(emp);*/
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
     }
-
 }
