@@ -33,11 +33,14 @@ public class GreetingValidator extends Validator {
     @Value("${greeting}")
     private String greeting;
 
+    @Value("${greeting.valid}")
+    private String greetingValid;
+
     @Override
     public void validate(Message message, DataType type) throws ValidationException {
         Object body = message.getBody();
         LOG.info("Validating : [{}]", body);
-        if (body instanceof String && body.equals(greeting)) {
+        if (body instanceof String && body.equals(greetingValid)) {
             LOG.info("OK");
         } else {
             throw new ValidationException(message.getExchange(), "Wrong content");
