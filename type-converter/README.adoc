@@ -9,10 +9,13 @@ Required Camel Maven Package Plugin and build helper plugin - see pom.xml for de
 
 === How to run
 
-You can run this example using
+You can run example tests using
 
     mvn test
 
+or in alternative, try to send own data through a rest service, performing a runtime convertion
+
+   curl -X POST -H 'Content-Type: text/plain' --data-binary 'Chuck Norris 83' localhost:8080/api/convert
 
 === Help and contributions
 

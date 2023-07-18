@@ -18,14 +18,34 @@ package sample.camel;
 
 import org.apache.camel.builder.RouteBuilder;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataTypeConverterRouter extends RouteBuilder {
 
+	@Value("${camel.servlet.mapping.context-path}")
+	public String contextPath;
+
 	@Override
 	public void configure() throws Exception {
+
+		restConfiguration()
+			.component("servlet");
+
+		rest("/convert")
+				.produces("text/plain")
+				.post()
+				.to("direct:convert1");
+
+
 		from("direct:convert1")
-				.convertBodyTo(Person.class);
+				.process(exchange -> {
+					String inputString = exchange.getIn().getBody(String.class);
+					byte[] inputBytes = inputString.getBytes();
+					exchange.getOut().setBody(inputBytes);
+				})
+				.convertBodyTo(Person.class)
+				.log("${body}");
 	}
 }
