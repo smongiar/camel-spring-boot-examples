@@ -35,15 +35,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.boot-version>${spring-boot-version}</spring.boot-version>
+        <avro.maven.plugin-version>1.11.2</avro.maven.plugin-version>
+        <apicurio-version>2.4.3.Final</apicurio-version>
+        <javafaker-version>1.0.2</javafaker-version>
     </properties>
-
-    <!--necessary to resolve confluent dependencies-->
-    <repositories>
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-    </repositories>
 
     <dependencyManagement>
          <dependencies>
@@ -58,58 +53,39 @@
     </dependencyManagement>
 
     <dependencies>
-
-        <!-- Spring Boot -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-actuator</artifactId>
-        </dependency>
-
-        <!-- Camel -->
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-spring-boot-xml-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-stream-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-avro-starter</artifactId>
+            <artifactId>camel-timer-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-kafka-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-avro-serializer</artifactId>
-            <version>${kafka-avro-serializer-version}</version>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>${javafaker-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-registry-serdes-avro-serde</artifactId>
+            <version>${apicurio-version}</version>
         </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
-            <!--Avro plugin to  generated classes from schema-->
-            <!-- <plugin>
+            <!--Avro plugin to generate classes from schema-->
+            <plugin>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-maven-plugin</artifactId>
-                <version>${avro-version}</version>
+                <version>${avro.maven.plugin-version}</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -122,29 +98,8 @@
                             <sourceDirectory>${project.basedir}/src/main/resources/avro</sourceDirectory>
                             <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
                             <stringType>String</stringType>
-                            <createSetters>false</createSetters>
                             <enableDecimalLogicalType>true</enableDecimalLogicalType>
                             <fieldVisibility>private</fieldVisibility>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>  -->
-            <!--force discovery of generated classes-->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>target/generated-sources/avro</source>
-                            </sources>
                         </configuration>
                     </execution>
                 </executions>
@@ -163,4 +118,47 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>local</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>openshift</id>
+            <activation>
+                <property>
+                    <name>openshift</name>
+                </property>
+            </activation>
+            <properties>
+                <spring.profiles.active>openshift</spring.profiles.active>
+            </properties>
+            <dependencies>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jkube</groupId>
+                        <artifactId>openshift-maven-plugin</artifactId>
+                        <version>${jkube-maven-plugin-version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>resource</goal>
+                                    <goal>build</goal>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
