@@ -5,21 +5,13 @@
 This example shows how to use Camel with Resilience4j EIP as circuit breaker
 in Camel routes
 
-The example includes four sub maven modules that implement
+The example includes three sub maven modules that implement
 
-* client (spring boot)
-* client2 (camel main)
+* client
 * service1
 * service2
 
 Where client -> service1 client -> service2 (fallback)
-
-=== Configuration
-
-Service1 is configured in the
-`+src/main/java/sample/camel/Service1Application.java+` source code.
-Service2 is configured in the
-`+src/main/resources/application.properties+` properties file.
 
 === Build
 
@@ -38,7 +30,7 @@ the client.
 [source,sh]
 ----
 $ cd service1
-$ mvn compile spring-boot:run
+$ mvn spring-boot:run
 ----
 
 When service1 is ready then start service2
@@ -46,28 +38,15 @@ When service1 is ready then start service2
 [source,sh]
 ----
 $ cd service2
-$ mvn compile camel:run
+$ mvn spring-boot:run
 ----
 
 And then start the client that calls service1 every second.
 
-We have provided two clients, one is using Spring Boot, the other Camel Main.
-You can run either one of them.
-
-To use Spring Boot
-
 [source,sh]
 ----
 $ cd client
-$ mvn compile spring-boot:run
-----
-
-Or to use Camel Main
-
-[source,sh]
-----
-$ cd client2
-$ mvn compile camel:run
+$ mvn spring-boot:run
 ----
 
 You can then stop service1 and see that the client should fallback to

@@ -16,18 +16,21 @@
  */
 package sample.camel;
 
-import org.apache.camel.main.Main;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 //CHECKSTYLE:OFF
 /**
- * A Java main that runs Camel service 2 using Camel Main
+ * A Spring Boot application that runs Camel service 1
  */
+@SpringBootApplication
 public class Service2Application {
 
-    public static void main(String[] args) throws Exception {
-        Main main = new Main();
-        main.configure().addRoutesBuilder(new Service2Route());
-        main.run();
+    /**
+     * A main method to start this application.
+     */
+    public static void main(String[] args) {
+        SpringApplication.run(Service2Application.class, args);
     }
 
 }
