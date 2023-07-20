@@ -1,7 +1,7 @@
 == Route Reload Example
 
-This example shows how to use route reloading. This feature is watching a directory folder
-for file changes, and then automatic trigger reload of the running routes in the Camel application.
+This example shows how to use https://camel.apache.org/manual/route-reload.html[route reloading]. This feature is watching a directory folder
+for file changes, and then automatic trigger reloads the running routes in the Camel application.
 
 The example generates messages using timer trigger, writes them to standard output.
 
@@ -14,12 +14,16 @@ You can run this example using
 Then you can edit the `src/main/resources/camel/my-route.xml` file and save, to trigger
 automatic reloading.
 
+You can execute the sample test using
+
+    mvn test
+
 === Help and contributions
 
 If you hit any problem using Camel or have some feedback, then please
-https://camel.apache.org/support.html[let us know].
+https://camel.apache.org/community/support/[let us know].
 
 We also love contributors, so
-https://camel.apache.org/contributing.html[get involved] :-)
+https://camel.apache.org/community/contributing/[get involved] :-)
 
 The Camel riders!
