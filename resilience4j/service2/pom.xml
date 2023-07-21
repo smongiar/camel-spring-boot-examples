@@ -24,20 +24,19 @@
     <parent>
         <groupId>org.apache.camel.springboot.example</groupId>
         <artifactId>camel-example-spring-boot-resilience4j</artifactId>
-        <version>4.0.0-M3-SNAPSHOT</version>
+        <version>4.0.0.M3-redhat-00001</version>
     </parent>
 
     <artifactId>camel-example-spring-boot-resilience4j-service2</artifactId>
     <name>Camel SB Examples :: Resilience4j :: Service 2</name>
     <description>An example showing how to use Resilience4j EIP as circuit breaker in Camel routes</description>
 
-    <!-- import Camel BOM -->
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.camel</groupId>
-                <artifactId>camel-bom</artifactId>
-                <version>${camel-version}</version>
+                <groupId>com.redhat.camel.springboot.platform</groupId>
+                <artifactId>camel-spring-boot-bom</artifactId>
+                <version>${camel-spring-boot-version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -45,60 +44,35 @@
     </dependencyManagement>
 
     <dependencies>
-
-        <!-- camel-core -->
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-main</artifactId>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-resilience4j</artifactId>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-resilience4j-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-undertow</artifactId>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-undertow-starter</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
-
         <plugins>
-            <!-- allows the routes to be run via 'mvn camel:run' -->
             <plugin>
-                <groupId>org.apache.camel</groupId>
-                <artifactId>camel-maven-plugin</artifactId>
-                <version>${camel-community.version}</version>
-                <configuration>
-                    <mainClass>sample.camel.Service2Application</mainClass>
-                </configuration>
-                <dependencies>
-                    <!-- logging -->
-                    <dependency>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-api</artifactId>
-                        <version>${log4j2-version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-core</artifactId>
-                        <version>${log4j2-version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-slf4j-impl</artifactId>
-                        <version>${log4j2-version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.logging.log4j</groupId>
-                        <artifactId>log4j-1.2-api</artifactId>
-                        <version>${log4j2-version}</version>
-                    </dependency>
-                </dependencies>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot-version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
-
     </build>
 
 </project>

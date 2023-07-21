@@ -25,18 +25,18 @@ public class ClientRoute extends RouteBuilder {
     @Override
     public void configure() {
         // you can configure the route rule with Java DSL here
-        from("timer:trigger?period=500").streamCaching()
+        from("timer:trigger?period=1000").streamCaching()
             .bean("counterBean")
             .log(" Client request: ${body}")
             .circuitBreaker()
                 // see application.properties how resilience is configured
-                .to("http://localhost:9090/service1")
+                .to("{{service1.url}}")
             //.onFallback()
             // we use a fallback without network that provides a response message immediately
             //    .transform().simple("Fallback ${body}")
             .onFallback()
                 // we use fallback via network where we call a 2nd service
-                .to("http://localhost:7070/service2")
+                .to("{{service2.url}}")
             .end()
             .log("Client response: ${body}");
     }
