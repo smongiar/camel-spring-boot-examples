@@ -14,27 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sample.camel;
+package org.apache.camel.example.kafka.offsetRepository;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.qpid.jms.JmsConnectionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.camel.impl.engine.FileStateRepository;
+import org.apache.camel.spi.StateRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.util.HashMap;
+
 @Component
-public class OrderRoute extends RouteBuilder {
-
-    @Autowired
-    JmsConnectionFactory amqpConnectionFactory;
-
-    @Value("${FILE_LOCATION:src/main/data}")
-    private String fileLocation;
+public class OffsetRepoRoutes extends RouteBuilder {
+    @Bean(name = "offsetRepo")
+    StateRepository<String, String> offsetRepository(@Value("${offset.repository.path}") String path) {
+        return new FileStateRepository(new File(path), new HashMap<>());
+    }
 
     @Override
     public void configure() throws Exception {
-        from("file:" + fileLocation + "?noop=true")
-                .to("amqp:queue:order.queue");
-    }
+        from("timer://foo?period={{period}}")
+                .setBody(header(Exchange.TIMER_COUNTER).prepend("Message #"))
+                .to("kafka:{{topic}}")
+                .log("Produced ${body}");
 
+        from("kafka:{{topic}}?offsetRepository=#offsetRepo&autoOffsetReset=earliest")
+                .log("Received ${body}");
+    }
 }

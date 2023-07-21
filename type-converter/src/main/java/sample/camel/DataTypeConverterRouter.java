@@ -17,6 +17,7 @@
 package sample.camel;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.rest.RestParamType;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

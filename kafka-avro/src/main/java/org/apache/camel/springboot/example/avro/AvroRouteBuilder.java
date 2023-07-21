@@ -14,23 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.example.kafka.avro;
+package org.apache.camel.springboot.example.avro;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AvroRouteBuilder extends RouteBuilder {
-
     @Override
     public void configure() throws Exception {
-
-        from("timer://foo?period={{period}}")
-        .setBody(constant("Hi This is Avro example"))
-        .process(new KafkaAvroMessageProcessor())
-            .to("kafka:{{producer.topic}}?brokers={{kafka.bootstrap.url}}&keySerializer=org.apache.kafka.common.serialization.StringSerializer&valueSerializer=org.apache.camel.example.kafka.avro.CustomKafkaAvroSerializer");
-
-        from("timer://foo?period={{period}}")
-        .from("kafka:{{consumer.topic}}?brokers={{kafka.bootstrap.url}}&keyDeserializer=org.apache.kafka.common.serialization.StringDeserializer&valueDeserializer=org.apache.camel.example.kafka.avro.CustomKafkaAvroDeserializer")
-         .process(new KafkaAvroMessageConsumerProcessor())
-            .log("${body}");
+        from("timer://x?period=5000").process(new CreateEmployeeProcessor()).to("kafka:{{kafka.topic}}");
+        from("kafka:{{kafka.topic}}").log("New employee: ${body}");
     }
 }

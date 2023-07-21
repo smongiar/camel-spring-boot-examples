@@ -2,73 +2,73 @@
 
 === Introduction
 
-An example which shows how to integrate Camel with Kafka avro  to make use of avro serialize/deserializer
+An example which shows how to use the link:https://avro.apache.org/docs/[Apache Avro] dataformat with Camel with the use of link:https://www.apicur.io/registry/[Apicurio Registry]
 
-First a kafka server should be started:
-----
-$ ./bin/schema-registry-start etc/schema-registry/schema-registry.properties
-----
+The application is configured to create the schema in apicurio registry if it doesn't exist. This schema is then used to serialize and deserialize the link:src/main/java/org/apache/camel/springboot/example/avro/Employee.java[Employee] instance from/to a kafka topic. A new Employee instance is periodically serialized into a configured topic by one camel route and consumed, deserialized and printed to the log by the second route.
 
-Then start confluent schema registry:
-register_schema.py is simple custom python script to register the employee.avsc schema in confluent schema registry:
-----
-$ python3.6 src/main/resources/register_schema.py http://localhost:8081 employees-avro src/main/resources/avro/employee.avsc
-Schema Registry URL: http://localhost:8081
-Topic: employees-avro
-Schema file: src/main/resources/avro/employee.avsc
-Success
-----
+See the link:src/main/resources/application.properties[configuration file] and the link:src/main/resources/avro/employee.avsc[schema definition] for more info.
+
+== Trying out the example on your local machine
+
+Start the apicurio registry in a docker container:
 
 ----
-$ curl --noproxy '*' http://localhost:8081/subjects/employees-avro-value/versions/1
-{"subject":"employees-avro-value","version":1,"id":2,"schema":"{\"type\":\"record\",\"name\":\"Employee\",\"namespace\":\"com.example.kafkatutorials\",\"fields\":[{\"name\":\"firstName\",\"type\":\"string\"},{\"name\":\"lastName\",\"type\":\"string\"},{\"name\":\"birthDate\",\"type\":\"long\"}]}"}
+docker run -d -p 8080:8080 apicurio/apicurio-registry-mem:2.4.3.Final
 ----
 
-To delete:
+Start the kafka broker:
+
 ----
-$ curl -X DELETE http://localhost:8081/subjects/topic-value/versions/version-no
+docker run -d -e ALLOW_PLAINTEXT_LISTENER=yes -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 -e KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true -p 9092:9092 bitnami/kafka:latest
 ----
 
-=== Preparing Kafka
+=== How to run the example
 
-This example requires that Kafka Server is up and running.
+You can run this example using
 
-    $ ${KAFKA}/bin/zookeeper-server-start.sh ${KAFKA}/config/zookeeper.properties
-    $ ${KAFKA}/bin/kafka-server-start.sh ${KAFKA}/config/server.properties
+    mvn spring-boot:run
 
-You will need to create following topics before you run the examples.
+You will see that each 5 seconds a new employee is created and received and printed to the application log:
 
-On windows run
+----
+New employee: {"firstName": "Buster", "lastName": "Upton", "hireDate": 1669040550701, "personal": {"phone": "1-628-816-1593", "address": "642 Crist Knolls"}}
+New employee: {"firstName": "Genevie", "lastName": "Connelly", "hireDate": 1676979164176, "personal": {"phone": "111-242-0401", "address": "0423 Jared Junctions"}}
+New employee: {"firstName": "Jefferson", "lastName": "Harber", "hireDate": 1659042443546, "personal": {"phone": "121.056.5072", "address": "8466 Tamisha Meadows"}}
+New employee: {"firstName": "Wilburn", "lastName": "Lakin", "hireDate": 1666498121570, "personal": {"phone": "762.365.2778", "address": "9207 Schumm Point"}}
+...
+----
 
-    $ ${KAFKA}/bin/kafka-topics.bat --create --zookeeper <zookeeper host ip>:<port> --replication-factor 1 --partitions 1 --topic employees-avro
+== Trying out the example on OpenShift
 
-On linux run
-    
-    $ ${KAFKA}/bin/kafka-topics.sh --create --zookeeper <zookeeper host ip>:<port> --replication-factor 1 --partitions 1 --topic employees-avro
+First, start with creating a new OpenShift project:
 
-=== Build
+----
+oc new-project csb-example-avro
+----
 
-You will need to compile this example first:
+Start a new deployment for the apicurio registry:
 
-    $ mvn compile
+----
+oc new-app apicurio/apicurio-registry-mem:2.4.3.Final
+----
 
-=== Run
+Deploy Kafka using OperatorHub:
 
-Run the consumer first in separate shell 
+----
+oc process -f src/main/resources/openshift/kafka-template.yml -p STARTING_CSV=$(oc get packagemanifests strimzi-kafka-operator -o jsonpath='{.status.channels[?(@.name=="stable")].currentCSV}') | oc create -f -
+----
 
-    $ mvn spring-boot:run
+=== How to run
 
-camel-context.xml file has both kafka-producer and kafka-consumer routes defined to produce/consume messages to topic my-topic.
+The application is deployed using the `openshift-maven-plugin` that takes care of creating all the necessary OpenShift resources.
 
-Press `Ctrl-C` to exit.
+Simply use the following command to deploy the application:
 
-=== Configuration
+----
+mvn clean package -Popenshift
+----
 
-You can configure the details in the file:
-  `src/main/resources/application.properties`
-
-You can enable verbose logging by adjusting the `src/main/resources/log4j2.properties`
-  file as documented in the file.
+After the application pod reaches the `Ready` state you will see the expected output in the application's pod log.
 
 === Help and contributions
 
@@ -79,4 +79,3 @@ We also love contributors,
 so https://camel.apache.org/contributing.html[get involved] :-)
 
 The Camel riders!
-

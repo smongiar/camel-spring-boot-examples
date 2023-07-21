@@ -2,54 +2,67 @@
 
 === Introduction
 
-An example which shows how to integrate Camel with Kafka offsetRepository(consumer) to use in order to locally store the offset of each partition of the topic
+An example which shows how to integrate Camel with Kafka offsetRepository to use in order to locally store the offset of each partition of the topic
 
 This project consists of the following examples:
 
-  1. Producer triggers with a timer and produces messages to the configured topic partition
+  1. Producer triggers with a timer and produces messages to the configured topic
   2. Consumer consumes from configured topic by reading the offset value from locally stored file.
 
-=== Preparing Kafka
+== Trying out the example on your local machine
 
-This example requires that Kafka Server is up and running.
+Start the kafka broker:
 
-    $ ${KAFKA}/bin/zookeeper-server-start.sh ${KAFKA}/config/zookeeper.properties
+----
+docker run -d -e ALLOW_PLAINTEXT_LISTENER=yes -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 -e KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true -p 9092:9092 bitnami/kafka:latest
+----
 
-    $ ${KAFKA}/bin/kafka-server-start.sh ${KAFKA}/config/server.properties
+=== How to run the example
 
-You will need to create following topics before you run the examples.
+You can run this example using
 
-On windows run
+    mvn spring-boot:run
 
-    $ ${KAFKA}/bin/kafka-topics.bat --create --zookeeper <zookeeper host ip>:<port> --replication-factor 1 --partitions 1 --topic my-topic
+You can then examine the newly created file `offsetStateRepo.dat` to see the topic offset:
 
-On linux run
- 
-    $ ${KAFKA}/bin/kafka-topics.sh --create --zookeeper <zookeeper host ip>:<port> --replication-factor 1 --partitions 1 --topic my-topic
+----
+offset-repo-example/0=0
+offset-repo-example/0=1
+offset-repo-example/0=2
+offset-repo-example/0=3
+offset-repo-example/0=4
+offset-repo-example/0=5
+----
 
-=== Build
+== Trying out the example on OpenShift
 
-You will need to compile this example first:
+First, start with creating a new OpenShift project:
 
-    $ mvn compile
+----
+oc new-project csb-example-kafka-offset
+----
 
-=== Run
+Deploy Kafka using OperatorHub:
 
-Run the consumer first in separate shell 
+----
+oc process -f src/main/resources/openshift/kafka-template.yml -p STARTING_CSV=$(oc get packagemanifests strimzi-kafka-operator -o jsonpath='{.status.channels[?(@.name=="stable")].currentCSV}') | oc create -f -
+----
 
-    $ mvn spring-boot:run
+=== How to run
 
-camel-context.xml file has both kafka-producer and kafka-consumer routes defined to produce/consume messages to topic my-topic.
+The application is deployed using the `openshift-maven-plugin` that takes care of creating all the necessary OpenShift resources.
 
-Press `Ctrl-C` to exit.
+Simply use the following command to deploy the application:
 
-=== Configuration
+----
+mvn clean package -Popenshift
+----
 
-You can configure the details in the file:
-  `src/main/resources/application.properties`
+and wait until application pod reaches the `Ready` state. You can then access the `offsetStateRepo.dat` file for example with:
 
-You can enable verbose logging by adjusting the `src/main/resources/log4j2.properties`
-  file as documented in the file.
+----
+oc exec dc/camel-example-spring-boot-kafka-offsetrepository -- cat /deployments/offsetStateRepo.dat
+----
 
 === Help and contributions
 
