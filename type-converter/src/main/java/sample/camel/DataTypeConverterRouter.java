@@ -37,11 +37,15 @@ public class DataTypeConverterRouter extends RouteBuilder {
 		rest("/convert")
 				.produces("text/plain")
 				.post()
-				.to("direct:convert1")
-				.param().name("person").type(RestParamType.body).dataType("string").endParam();
+				.to("direct:convert1");
 
 
 		from("direct:convert1")
+				.process(exchange -> {
+					String inputString = exchange.getIn().getBody(String.class);
+					byte[] inputBytes = inputString.getBytes();
+					exchange.getOut().setBody(inputBytes);
+				})
 				.convertBodyTo(Person.class)
 				.log("${body}");
 	}
