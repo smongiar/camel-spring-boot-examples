@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: csb-examples
+spec:
+  groups:
+    - name: csb-examples
+      rules:
+        - alert: ObservationClientError
+          annotations:
+            summary: Check client error within latest 30 seconds.
+          expr: avg_over_time(trigger_seconds_max{error="RuntimeException"}[30s]) > 0
+          for: 10s
+          labels:
+            severity: critical

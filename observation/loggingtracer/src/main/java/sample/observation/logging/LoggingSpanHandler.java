@@ -16,24 +16,54 @@
  */
 package sample.observation.logging;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import brave.handler.MutableSpan;
-import brave.handler.SpanHandler;
-import brave.propagation.TraceContext;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
 
-public class LoggingSpanHandler extends SpanHandler {
+public class LoggingSpanHandler implements ObservationHandler<Observation.Context> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggingSpanHandler.class);
 
     @Override
-    public boolean end(TraceContext context, MutableSpan span, Cause cause) {
-        System.out.println("SPAN FINISHED: traceId=" + span.traceId()
-                + " spanId=" + span.id()
-                + " parentId=" + span.parentId()
-                + " operation=" + span.name()
-                + " tags=" + span.tags().entrySet().stream().map(Object::toString).collect(Collectors.toList())
-                + " logs=[" + span.annotations().stream().map(Map.Entry::getValue).collect(Collectors.toList())
-                + "]");
+    public void onStart(Observation.Context context) {
+        ObservationHandler.super.onStart(context);
+    }
+
+    @Override
+    public void onError(Observation.Context context) {
+        ObservationHandler.super.onError(context);
+    }
+
+    @Override
+    public void onEvent(Observation.Event event, Observation.Context context) {
+        ObservationHandler.super.onEvent(event, context);
+        LOGGER.info("OBSERVATION EVENT {}: {}", event.getName(), context);
+    }
+
+    @Override
+    public void onScopeOpened(Observation.Context context) {
+        ObservationHandler.super.onScopeOpened(context);
+    }
+
+    @Override
+    public void onScopeClosed(Observation.Context context) {
+        ObservationHandler.super.onScopeClosed(context);
+    }
+
+    @Override
+    public void onScopeReset(Observation.Context context) {
+        ObservationHandler.super.onScopeReset(context);
+    }
+
+    @Override
+    public void onStop(Observation.Context context) {
+        ObservationHandler.super.onStop(context);
+    }
+
+    @Override
+    public boolean supportsContext(Observation.Context context) {
         return true;
     }
 }

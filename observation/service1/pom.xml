@@ -29,45 +29,24 @@
 
     <artifactId>camel-example-spring-boot-observation-service1</artifactId>
     <name>Camel SB Examples :: Observation :: Service 1</name>
-    <description>An example showing how to trace incoming and outgoing messages from Camel with Micrometer Observation
-    </description>
-
-    <properties>
-        <brave.version>5.15.0</brave.version>
-    </properties>
-
-    <!-- import Spring-Boot and Camel BOM -->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.redhat.camel.springboot.platform</groupId>
-                <artifactId>camel-spring-boot-bom</artifactId>
-                <version>${camel-spring-boot-version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-           <dependency>
-                <groupId>io.zipkin.brave</groupId>
-                <artifactId>brave-bom</artifactId>
-                <version>${brave.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot-version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <description>An example showing how to trace incoming and outgoing messages from Camel with Micrometer Observation</description>
 
     <dependencies>
-
         <!-- spring-boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -80,14 +59,6 @@
         <!-- camel -->
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-observation-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-jetty-starter</artifactId>
         </dependency>
         <dependency>
@@ -95,62 +66,101 @@
             <artifactId>camel-http-starter</artifactId>
         </dependency>
 
-
-        <!-- Micrometer Observation setup -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
-        </dependency>
         <!-- Reporter -->
         <dependency>
             <groupId>org.apache.camel.springboot.example</groupId>
             <artifactId>camel-example-spring-boot-observation-loggingtracer</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/jkube</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot-version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
-            <id>zipkin</id>
-            <dependencies>
-                <dependency>
-                    <groupId>io.zipkin.reporter2</groupId>
-                    <artifactId>zipkin-reporter-brave</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>io.zipkin.reporter2</groupId>
-                    <artifactId>zipkin-sender-urlconnection</artifactId>
-                </dependency>
-            </dependencies>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>local</spring.profiles.active>
+            </properties>
         </profile>
         <profile>
-            <id>prometheus</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>io.micrometer</groupId>
-                    <artifactId>micrometer-registry-prometheus</artifactId>
-                </dependency>
-            </dependencies>
+            <id>openshift</id>
+            <activation>
+                <property>
+                    <name>openshift</name>
+                </property>
+            </activation>
+            <properties>
+                <spring.profiles.active>openshift</spring.profiles.active>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jkube</groupId>
+                        <artifactId>openshift-maven-plugin</artifactId>
+                        <version>${jkube-maven-plugin-version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>resource</goal>
+                                    <goal>build</goal>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <resources>
+                                <services>
+                                    <service>
+                                        <name>service1</name>
+                                        <ports>
+                                            <port>
+                                                <name>web</name>
+                                                <port>6543</port>
+                                                <targetPort>6543</targetPort>
+                                                <protocol>tcp</protocol>
+                                            </port>
+                                            <port>
+                                                <name>service</name>
+                                                <port>6060</port>
+                                                <targetPort>6060</targetPort>
+                                                <protocol>tcp</protocol>
+                                            </port>
+                                        </ports>
+                                    </service>
+                                </services>
+                            </resources>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
-
 </project>

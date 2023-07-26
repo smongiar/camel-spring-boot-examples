@@ -5,7 +5,7 @@
 This example shows how to use Camel with Micrometer Observation to create observations for
 incoming and outgoing Camel messages.
 
-For Metrics we are using Micrometer Core, for Tracing we're using Micrometer Tracing with Brave.
+For Metrics we are using Micrometer Core, for Tracing we're using Micrometer Tracing with OpenTelemetry.
 
 The example includes four sub maven modules that implement
 
@@ -16,13 +16,13 @@ The example includes four sub maven modules that implement
 
 Where client -> service1 -> service2 using HTTP.
 
-=== Build
+=== Build in the local environment
 
-You will need to compile this example first:
+You will need to package this example first:
 
 [source,sh]
 ----
-$ mvn compile
+$ mvn package
 ----
 
 === Run the example
@@ -33,59 +33,49 @@ indicate that the service should be traced.
 
 [source,sh]
 ----
-$ cd service1
-$ mvn compile spring-boot:run
+$ java -jar service1/target/*.jar
 ----
 
 When service1 is ready then start service2
 
 [source,sh]
 ----
-$ cd service2
-$ mvn compile spring-boot:run
+$ java -jar service2/target/*.jar
 ----
 
 And then start the client that calls service1 every 30 seconds.
 
 [source,sh]
 ----
-$ cd client
-$ mvn compile spring-boot:run
+$ java -jar client/target/*.jar
 ----
 
 The client application explicitly instantiates and initializes the
 Micrometer Observation Tracer with the _CamelContext_.
 
-The shells will show _SPAN FINISHED_ messages indicating what spans have
-been reported from the client and two services.
+The shells will show _OBSERVATION EVENT_ messages indicating what event have
+been observed.
 
 === Outcome
 
-You should get a trace view similar to this one
+Running the docker containers using docker compose it is possible
+to access to Prometheus, Jaeger and Grafana
 
-image::adoc/img/trace.jpeg[]
+[source,sh]
+----
+$ cd containers
+$ docker-compose up
+----
 
-You will get Camel related metrics similar to these
+Jaeger: http://localhost:16686/
 
-Example for server application
+Prometheus: http://localhost:9090/
 
-[source]
------
-Meter name [POST], type [TIMER] - measurements [Measurement{statistic='COUNT', value=1.0}, Measurement{statistic='TOTAL_TIME', value=3.078740245}, Measurement{statistic='MAX', value=3.078740245}]
-Meter name [POST.active], type [LONG_TASK_TIMER] - measurements [Measurement{statistic='ACTIVE_TASKS', value=0.0}, Measurement{statistic='DURATION', value=0.0}]
-Meter name [camel.component], type [TIMER] - measurements [Measurement{statistic='COUNT', value=1.0}, Measurement{statistic='TOTAL_TIME', value=1.321830243}, Measurement{statistic='MAX', value=1.321830243}]
-Meter name [camel.component.active], type [LONG_TASK_TIMER] - measurements [Measurement{statistic='ACTIVE_TASKS', value=0.0}, Measurement{statistic='DURATION', value=0.0}]
------
+Grafana: http://localhost:3000/
 
-Example for client application
+=== Build and deploy on OpenShift
 
-[source]
------
-Meter name [trigger], type [TIMER] - measurements [Measurement{statistic='COUNT', value=1.0}, Measurement{statistic='TOTAL_TIME', value=3.168954513}, Measurement{statistic='MAX', value=3.168954513}]
-Meter name [trigger.active], type [LONG_TASK_TIMER] - measurements [Measurement{statistic='ACTIVE_TASKS', value=0.0}, Measurement{statistic='DURATION', value=0.0}]
-Meter name [camel.component], type [TIMER] - measurements [Measurement{statistic='COUNT', value=1.0}, Measurement{statistic='TOTAL_TIME', value=3.154452898}, Measurement{statistic='MAX', value=3.154452898}]
-Meter name [camel.component.active], type [LONG_TASK_TIMER] - measurements [Measurement{statistic='ACTIVE_TASKS', value=0.0}, Measurement{statistic='DURATION', value=0.0}]
------
+Refer to xref:ocp/README.adoc[dedicated guide]
 
 === Help and contributions
 

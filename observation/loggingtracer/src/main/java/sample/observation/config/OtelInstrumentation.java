@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sample.camel;
+package sample.observation.config;
 
-import org.apache.camel.observation.starter.CamelObservation;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 
-@SpringBootApplication
-@CamelObservation
-public class ClientApplication {
+@Configuration
+public class OtelInstrumentation {
 
-	/**
-	 * A main method to start this application.
-	 */
-	public static void main(String[] args) {
-		SpringApplication.run(ClientApplication.class, args);
+	// once SB will be >= 3.1.0, the auto configuration can be used instead
+	// https://github.com/spring-projects/spring-boot/blob/main/spring-boot-project/spring-boot-actuator-autoconfigure/src/main/java/org/springframework/boot/actuate/autoconfigure/tracing/otlp/OtlpAutoConfiguration.java
+	@Bean
+	public OtlpGrpcSpanExporter otlpExporter(@Value("${management.otlp.tracing.endpoint}") String endpoint) {
+		return OtlpGrpcSpanExporter.builder().setEndpoint(endpoint).build();
 	}
 }

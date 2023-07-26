@@ -29,7 +29,7 @@ public class ClientRoute extends RouteBuilder {
 		from("timer:trigger?exchangePattern=InOut&period=30000").streamCaching()
 				.bean("counterBean")
 				.log("Client request: ${body}")
-				.to("http://localhost:6060/service1")
+				.to("{{endpoint.service1}}")
 				.log("Client response: ${body}");
 	}
 

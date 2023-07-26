@@ -1,11 +1,19 @@
 version: "3"
 services:
-    zipkin:
-        container_name: camel_observation_zipkin
-        image: openzipkin/zipkin
+    jaeger:
+        container_name: camel_observation_jaeger
+        image: quay.io/jaegertracing/all-in-one
         extra_hosts: ['host.docker.internal:host-gateway']
+        environment:
+            - COLLECTOR_OTLP_ENABLED=true
+            - METRICS_STORAGE_TYPE=prometheus
+            - PROMETHEUS_SERVER_URL=http://host.docker.internal:9090
+            - PROMETHEUS_QUERY_SUPPORT_SPANMETRICS_CONNECTOR=true
         ports:
-            - 9411:9411
+            - 4317:4317
+            - 4318:4318
+            - 16686:16686
+            - 14269:14269
     prometheus:
         image: prom/prometheus
         container_name: camel_observation_prometheus
@@ -30,6 +38,6 @@ services:
             - ./docker/config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
         ports:
             - 3000:3000
-# Zipkin: http://localhost:9411/zipkin/
+# Jaeger: http://localhost:16686/
 # Prometheus: http://localhost:9090/
 # Grafana: http://localhost:3000/

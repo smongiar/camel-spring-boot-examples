@@ -1,0 +1,48 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: camel-example-spring-boot-observation-service1
+  name: camel-example-spring-boot-observation-service1
+spec:
+  endpoints:
+    - interval: 30s
+      port: web
+      scheme: http
+      path: /actuator/prometheus
+  selector:
+    matchLabels:
+      app: camel-example-spring-boot-observation-service1
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: camel-example-spring-boot-observation-service2
+  name: camel-example-spring-boot-observation-service2
+spec:
+  endpoints:
+    - interval: 30s
+      port: web
+      scheme: http
+      path: /actuator/prometheus
+  selector:
+    matchLabels:
+      app: camel-example-spring-boot-observation-service2
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    k8s-app: camel-example-spring-boot-observation-client
+  name: camel-example-spring-boot-observation-client
+spec:
+  endpoints:
+    - interval: 30s
+      port: web
+      scheme: http
+      path: /actuator/prometheus
+  selector:
+    matchLabels:
+      app: camel-example-spring-boot-observation-client
+---
