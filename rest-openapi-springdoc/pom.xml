@@ -77,7 +77,7 @@
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-jackson-starter</artifactId>
         </dependency>
-        <!-- include springodc so we can browse the api docs in a swagger web ui -->
+        <!-- include springdoc so we can browse the api docs in a swagger web ui -->
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-springdoc-starter</artifactId>

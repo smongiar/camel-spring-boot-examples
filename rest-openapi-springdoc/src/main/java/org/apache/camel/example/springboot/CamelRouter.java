@@ -71,7 +71,7 @@ public class CamelRouter extends RouteBuilder {
                 .responseMessage().code(200).message("User successfully returned").endResponseMessage()
                 .to("bean:userService?method=findUser(${header.id})")
 
-            .put("/{id}").description("Update a user").type(User.class)
+            .put().description("Update a user").type(User.class)
                 .param().name("id").type(path).description("The ID of the user to update").dataType("integer").endParam()    
                 .param().name("body").type(body).description("The user to update").endParam()
                 .responseMessage().code(204).message("User successfully updated").endResponseMessage()
