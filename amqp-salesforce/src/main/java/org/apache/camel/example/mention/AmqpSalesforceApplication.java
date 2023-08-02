@@ -17,17 +17,19 @@
 package org.apache.camel.example.mention;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 //CHECKSTYLE:OFF
 @SpringBootApplication
-public class TwitterSalesforceApplication {
+@EnableAutoConfiguration
+public class AmqpSalesforceApplication {
 
     /**
      * A main method to start this application.
      */
     public static void main(String[] args) {
-        SpringApplication.run(TwitterSalesforceApplication.class, args);
+        SpringApplication.run(AmqpSalesforceApplication.class, args);
     }
 
 }

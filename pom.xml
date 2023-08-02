@@ -39,6 +39,7 @@
 		<module>spring-boot</module>
 		<module>actuator-http-metrics</module>
 		<module>amqp</module>
+		<module>amqp-salesforce</module>
 		<module>arangodb</module>
 		<module>aws2-s3</module>
 		<module>fhir</module>
@@ -69,7 +70,6 @@
 		<module>saga</module>
 		<module>soap-cxf</module>
 		<module>supervising-route-controller</module>
-		<module>twitter-salesforce</module>
 		<module>type-converter</module>
 		<module>validator</module>
 		<module>webhook</module>
