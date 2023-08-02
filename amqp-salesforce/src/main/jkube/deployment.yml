@@ -1,0 +1,7 @@
+spec:
+  template:
+    spec:
+      containers:
+        - env:
+            - name: JAVA_OPTIONS
+              value: " -Dcamel.component.salesforce.clientId=${camelSalesforce.clientId} -Dcamel.component.salesforce.clientSecret=${camelSalesforce.clientSecret} -Dcamel.component.salesforce.userName=${camelSalesforce.userName} -Dcamel.component.salesforce.password=${camelSalesforce.password} -Dgenerate.dto -Dcamel.ssl.config.secure-socket-protocol=TLSv1.3 -DcamelSalesforce.namespace=${camelSalesforce.namespace}"
