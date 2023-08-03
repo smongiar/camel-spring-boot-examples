@@ -33,12 +33,12 @@ Number of Examples: 44 (0 deprecated)
 |===
 | Example | Category | Description
 
+| link:amqp-salesforce/README.adoc[Amqp Salesforce] (amqp-salesforce) |  | AMQP message sending is created as contacts in Salesforce
+
 | link:health-checks/readme.adoc[Health Checks] (health-checks) |  | 
 
 | link:mail-ms-exchange-oauth2/Readme.adoc[Mail Ms Exchange Oauth2] (mail-ms-exchange-oauth2) |  | An example showing how to use Camel on Spring Boot to connect
         with IMAP protocol and access email data for Office 365 users using OAuth2 authentication
-
-| link:twitter-salesforce/README.adoc[Twitter Salesforce] (twitter-salesforce) |  | Twitter mentions is created as contacts in Salesforce
 
 | link:spring-boot-jta-jpa-autoconfigure/readme.adoc[Spring Boot Jta Jpa Autoconfigure] (spring-boot-jta-jpa-autoconfigure) | Advanced | An example showing JTA with Spring Boot Autoconfiguration
 

@@ -27,14 +27,14 @@ You should see the following output when the application is launched:
 ...
 2023-07-24T11:05:58.913+02:00  INFO 461599 --- [           main] o.s.b.w.e.undertow.UndertowWebServer     : Undertow started on port(s) 8080 (http)
 2023-07-24T11:05:59.060+02:00  INFO 461599 --- [           main] o.a.c.s.o.OpenApiAutoConfiguration       : OpenAPI (3.0.2) created from Camel Rest-DSL v1.0.0 - User API
-2023-07-24T11:05:59.153+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   : Apache Camel 4.0.0.M3-redhat-00001 (MyCamel) is starting
+2023-07-24T11:05:59.153+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   : Apache Camel 4.0.0.RC2-redhat-00001 (MyCamel) is starting
 2023-07-24T11:05:59.160+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   : Routes startup (started:5)
 2023-07-24T11:05:59.160+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   :     Started route2 (direct://update-user)
 2023-07-24T11:05:59.160+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   :     Started route1 (rest-api:///api-doc)
 2023-07-24T11:05:59.160+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   :     Started route3 (rest://get:/users)
 2023-07-24T11:05:59.160+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   :     Started route4 (rest://get:/users:/%7Bid%7D)
 2023-07-24T11:05:59.160+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   :     Started route5 (rest://put:/users:/%7Bid%7D)
-2023-07-24T11:05:59.161+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   : Apache Camel 4.0.0.M3-redhat-00001 (MyCamel) started in 7ms (build:0ms init:0ms start:7ms)
+2023-07-24T11:05:59.161+02:00  INFO 461599 --- [           main] o.a.c.impl.engine.AbstractCamelContext   : Apache Camel 4.0.0.RC2-redhat-00001 (MyCamel) started in 7ms (build:0ms init:0ms start:7ms)
 ----
 
 After the Spring Boot application is started, you can open the following URL in your web browser to access the REST endpoint and retrieve a list of users: http://localhost:8080/api/users
