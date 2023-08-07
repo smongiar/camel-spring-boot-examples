@@ -34,13 +34,13 @@ public class NumberPojo {
     @Produce("stream:out")
     private MagicNumber magic;
 
-    // only consume when the predicate matches, eg when the message body is lower than 100
+    // only consume when the predicate matches, e.g. when the message body is lower than 100
     @Consume(value = "direct:numbers", predicate = "${body} < 100")
     public void lowNumber(int number) {
         magic.onMagicNumber("Got a low number " + number);
     }
 
-    // only consume when the predicate matches, eg when the message body is higher or equal to 100
+    // only consume when the predicate matches, e.g. when the message body is higher or equal to 100
     @Consume(value = "direct:numbers", predicate = "${body} >= 100")
     public void highNumber(int number) {
         magic.onMagicNumber("Got a high number " + number);
