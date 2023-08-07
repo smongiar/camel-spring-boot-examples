@@ -2,9 +2,9 @@
 
 === Introduction
 
-This example demonstrates how you can use POJO Royting with Camel's `@Consume` and `@Produce` annotations
+This example demonstrates how you can use POJO Routing with Camel's `@Consume` and `@Produce` annotations
 on your Java beans. The example will generate a series of random numbers that is routed to either a low
-or high method call. The method then constructs a new message that is routed to another POJO that is
+or high method call. The method then constructs a new message that is routed to another POJO
 hidden by an interface.
 
 === Build
@@ -24,9 +24,9 @@ And you should see output in the console with high and low numbers. The example 
 === Help and contributions
 
 If you hit any problem using Camel or have some feedback, then please
-https://camel.apache.org/support.html[let us know].
+https://camel.apache.org/community/support/[let us know].
 
 We also love contributors, so
-https://camel.apache.org/contributing.html[get involved] :-)
+https://camel.apache.org/community/contributing/[get involved] :-)
 
 The Camel riders!
