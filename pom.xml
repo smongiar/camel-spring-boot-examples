@@ -138,6 +138,7 @@
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>spring-boot</artifactId>
 			<version>${camel-spring-boot-version}</version>
+                        <type>pom</type>
 		</dependency>
 	</dependencies>
 
