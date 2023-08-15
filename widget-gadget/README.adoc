@@ -58,7 +58,7 @@ In the console you can observe the following log:
 
 Moreover you can login to the Artemis console with the default username and password, admin/admin and check that there is one message in each of the following queues, widget.queue and gadget.queue
 
-image::https://github.com/jboss-fuse/camel-spring-boot-examples/blob/camel-spring-boot-examples-4.0.0-RC2-branch/widget-gadget/img/artemis-console.png[link="https://github.com/jboss-fuse/camel-spring-boot-examples/blob/camel-spring-boot-examples-4.0.0-RC2-branch/widget-gadget/img/artemis-console.png"]
+image::https://github.com/jboss-fuse/camel-spring-boot-examples/blob/camel-spring-boot-examples-4.0.0-branch/widget-gadget/img/artemis-console.png[link="https://github.com/jboss-fuse/camel-spring-boot-examples/blob/camel-spring-boot-examples-4.0.0-RC2-branch/widget-gadget/img/artemis-console.png"]
 
 == Trying out the example on OpenShift
 
