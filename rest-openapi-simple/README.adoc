@@ -1,7 +1,17 @@
 == Camel Rest OpenApi example
 
-This example shows how to call a REST service defined using OpenApi
+This example shows how to call a REST service defined using OpenAPI
 specification with the help of Camel Rest OpenApi component.
+
+== Trying out the example on your local machine
+
+Start the server providing the OpenAPI specification with:
+
+----
+docker run --name swaggerapi-petstore3 -d -p 8080:8080 swaggerapi/petstore3:unstable
+----
+
+=== How to run the example
 
 The example is a standalong Spring Boot application that acts as a REST
 client, you can run simply by issuing:
@@ -18,7 +28,7 @@ $ java -jar target/camel-example-spring-boot-rest-openapi-simple-*.jar
 ....
 
 The example periodically retrieves a pet using an incremental id from the petstore using the `getPetById` operation defined in the OpenAPI document.
-The API is defined in a way that not all ID requests will succeed, so an exception in the log with the HTTP 404 code is expected occasionally.
+The server contains only 10 pets in its database by default, so an exception in the log with the HTTP 404 code is expected for id greater than 10.
 
 After running the application, you will see following log:
 
@@ -43,11 +53,9 @@ After running the application, you will see following log:
 2023-07-25T10:30:37.772+02:00  INFO 33848 --- [           main] o.a.c.impl.engine.AbstractCamelContext   : Apache Camel 4.0.0.M3-redhat-00009 (camel-1) started in 847ms (build:0ms init:0ms start:847ms)
 2023-07-25T10:30:37.790+02:00  INFO 33848 --- [           main] org.apache.camel.example.Application     : Started Application in 1.473 seconds (process running for 1.611)
 2023-07-25T10:30:38.774+02:00  INFO 33848 --- [ #1 - timer://t] route1                                   : Retrieving pet with id 1
-2023-07-25T10:30:39.271+02:00  INFO 33848 --- [ #1 - timer://t] route1                                   : {"id":1,"name":"Pet1","photoUrls":["test1","test2"],"tags":[],"status":"available"}
+2023-07-25T10:30:39.271+02:00  INFO 33848 --- [ #1 - timer://t] route1                                   : {"id":1,"category":{"id":2,"name":"Cats"},"name":"Cat 1","photoUrls":["url1","url2"],"tags":[{"id":1,"name":"tag1"},{"id":2,"name":"tag2"}],"status":"available"}
 2023-07-25T10:30:43.771+02:00  INFO 33848 --- [ #1 - timer://t] route1                                   : Retrieving pet with id 2
-2023-07-25T10:30:43.890+02:00  INFO 33848 --- [ #1 - timer://t] route1                                   : {"id":2,"name":"a","photoUrls":[],"tags":[],"status":"available"}
-2023-07-25T10:30:48.771+02:00  INFO 33848 --- [ #1 - timer://t] route1                                   : Retrieving pet with id 3
-2023-07-25T10:30:48.893+02:00 ERROR 33848 --- [ #1 - timer://t] o.a.c.p.e.DefaultErrorHandler            : Failed delivery for (MessageId: 63CEEFF4D7575AE-0000000000000000 on ExchangeId: 63CEEFF4D7575AE-0000000000000000). Exhausted after delivery attempt: 1 caught: org.apache.camel.http.base.HttpOperationFailedException: HTTP operation failed invoking https://petstore3.swagger.io/api/v3/pet/3 with statusCode: 404
+2023-07-25T10:30:43.890+02:00  INFO 33848 --- [ #1 - timer://t] route1                                   : {"id":2,"category":{"id":2,"name":"Cats"},"name":"Cat 2","photoUrls":["url1","url2"],"tags":[{"id":1,"name":"tag2"},{"id":2,"name":"tag3"}],"status":"available"}
 ----
 
 === Help and contributions
