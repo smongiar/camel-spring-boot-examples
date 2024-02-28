@@ -18,8 +18,8 @@ package org.apache.camel.example.kafka.offsetRepository;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.impl.engine.FileStateRepository;
 import org.apache.camel.spi.StateRepository;
+import org.apache.camel.support.processor.state.FileStateRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
