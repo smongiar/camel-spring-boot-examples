@@ -8,7 +8,7 @@ specification with the help of Camel Rest OpenApi component.
 Start the server providing the OpenAPI specification with:
 
 ----
-docker run --name swaggerapi-petstore3 -d -p 8080:8080 swaggerapi/petstore3:unstable
+docker run --name swaggerapi-petstore3 -d -p 8081:8080 swaggerapi/petstore3:unstable
 ----
 
 === How to run the example

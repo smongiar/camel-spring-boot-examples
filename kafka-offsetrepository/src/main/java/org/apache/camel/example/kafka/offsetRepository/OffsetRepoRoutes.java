@@ -36,7 +36,7 @@ public class OffsetRepoRoutes extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
-        from("timer://foo?period={{period}}")
+        from("timer://foo?period={{period}}&includeMetadata=true")
                 .setBody(header(Exchange.TIMER_COUNTER).prepend("Message #"))
                 .to("kafka:{{topic}}")
                 .log("Produced ${body}");
