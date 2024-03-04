@@ -98,12 +98,6 @@
             <artifactId>camel-test-spring-junit5</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- JMX is needed for route coverage testing -->
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-management-starter</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

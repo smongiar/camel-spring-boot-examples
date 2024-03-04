@@ -25,7 +25,7 @@ public class RestOpenapiRoutes extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         // @formatter:off
-        from("timer:t?period=5000")
+        from("timer:t?period=5000&includeMetadata=true")
             .setHeader("petId", header(Exchange.TIMER_COUNTER))
             .log("Retrieving pet with id ${header.petId}")
         .to("rest-openapi:{{specification.url}}#getPetById?host={{host.url}}")
