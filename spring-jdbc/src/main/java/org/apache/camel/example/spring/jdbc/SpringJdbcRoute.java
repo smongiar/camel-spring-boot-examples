@@ -29,6 +29,7 @@ public class SpringJdbcRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
+        restConfiguration().endpointProperty("muteException", "false");
         rest()
                 .post("/horses")
                     .to("direct:persist")
