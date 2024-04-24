@@ -197,6 +197,16 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.jkube</groupId>
+					<artifactId>openshift-maven-plugin</artifactId>
+					<version>${jkube-maven-plugin-version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
 	</build>
 
 	<profiles>
