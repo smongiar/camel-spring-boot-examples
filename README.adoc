@@ -27,7 +27,7 @@ readme's instructions.
 === Examples
 
 // examples: START
-Number of Examples: 46 (0 deprecated)
+Number of Examples: 48 (0 deprecated)
 
 [width="100%",cols="4,2,4",options="header"]
 |===
@@ -36,9 +36,6 @@ Number of Examples: 46 (0 deprecated)
 | link:amqp-salesforce/README.adoc[Amqp Salesforce] (amqp-salesforce) |  | AMQP message sending is created as contacts in Salesforce
 
 | link:health-checks/readme.adoc[Health Checks] (health-checks) |  | 
-
-| link:mail-ms-exchange-oauth2/Readme.adoc[Mail Ms Exchange Oauth2] (mail-ms-exchange-oauth2) |  | An example showing how to use Camel on Spring Boot to connect
-        with IMAP protocol and access email data for Office 365 users using OAuth2 authentication
 
 | link:spring-boot-jta-jpa-autoconfigure/readme.adoc[Spring Boot Jta Jpa Autoconfigure] (spring-boot-jta-jpa-autoconfigure) | Advanced | An example showing JTA with Spring Boot Autoconfiguration
 
@@ -97,6 +94,9 @@ Number of Examples: 46 (0 deprecated)
 
 | link:validator/readme.adoc[Validator Spring Boot] (validator) | Input/Output Type Contract | An example showing how to work with declarative validation and Spring Boot
 
+| link:mail-ms-exchange-oauth2/Readme.adoc[Mail Ms Exchange Oauth2] (mail-ms-exchange-oauth2) | Mail | An example showing how to use Camel on Spring Boot to connect
+        with IMAP protocol and access email data for Office 365 users using OAuth2 authentication
+
 | link:actuator-http-metrics/readme.adoc[Actuator Http Metrics] (actuator-http-metrics) | Management and Monitoring | Example on how to use Spring Boot's Actuator endpoints to gather info like mappings or metrics
 
 | link:metrics/README.adoc[Metrics] (metrics) | Management and Monitoring | An example showing how to work with Camel and Spring Boot and report metrics to Graphite
@@ -109,6 +109,8 @@ Number of Examples: 46 (0 deprecated)
     
 
 | link:supervising-route-controller/readme.adoc[Supervising Route Controller] (supervising-route-controller) | Management and Monitoring | An example showing how to work with Camel's Supervising Route Controller and Spring Boot
+
+| link:activemq/readme.adoc[Activemq] (activemq) | Messaging | An example showing how to work with Camel, ActiveMQ openwire and Spring Boot
 
 | link:amqp/readme.adoc[Amqp] (amqp) | Messaging | An example showing how to work with Camel, ActiveMQ Amqp and Spring Boot
 
@@ -127,6 +129,7 @@ Number of Examples: 46 (0 deprecated)
 | link:widget-gadget/README.adoc[Widget Gadget] (widget-gadget) | Messaging | The widget and gadget example from EIP book, running on Spring Boot
 
 | link:reactive-streams/readme.adoc[Reactive Streams] (reactive-streams) | Reactive | An example that shows how Camel can exchange data using reactive streams with Spring Boot reactor
+    
 
 | link:http-ssl/README.adoc[Http Ssl] (http-ssl) | Rest | An example showing the Camel HTTP component with Spring Boot and SSL
 

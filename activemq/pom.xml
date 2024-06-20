@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Licensed to the Apache Software Foundation (ASF) under one or more
@@ -16,26 +17,28 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>org.apache.camel.springboot.example</groupId>
-        <artifactId>examples</artifactId>
-        <version>4.4.0-SNAPSHOT</version>
+      <groupId>org.apache.camel.springboot.example</groupId>
+      <artifactId>examples</artifactId>
+      <version>4.4.0-SNAPSHOT</version>
     </parent>
-
-    <artifactId>camel-example-spring-boot-rest-openapi</artifactId>
-    <name>Camel SB Examples :: REST DSL and OpenApi</name>
-    <description>An example showing Camel REST DSL and OpenApi with Spring Boot</description>
-
+    
+    <artifactId>camel-example-spring-boot-activemq</artifactId>
+    <name>Camel SB Examples :: ActiveMQ</name>
+    <description>An example showing how to work with Camel, ActiveMQ openwire and Spring Boot</description>
+    
     <properties>
-        <category>Rest</category>
-        <spring.boot-version>${spring-boot-version}</spring.boot-version>
+        <category>Messaging</category>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <activemq-version>5.18.3</activemq-version>
     </properties>
 
-    <!-- Spring-Boot and Camel BOM -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -52,6 +55,10 @@
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <exclusions>
                 <exclusion>
@@ -64,7 +71,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
-
         <!-- Camel -->
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
@@ -72,43 +78,23 @@
         </dependency>
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-openapi-java-starter</artifactId>
+            <artifactId>camel-activemq-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-servlet-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-jackson-starter</artifactId>
+            <groupId>org.messaginghub</groupId>
+            <artifactId>pooled-jms</artifactId>
         </dependency>
 
-        <!-- metrics and expose for prometheus -->
+        <!-- test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-micrometer-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-
-        <!-- Test -->
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-management-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.camel.springboot</groupId>
-            <artifactId>camel-micrometer-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-test-spring-junit5</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -117,7 +103,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot-version}</version>
+                <version>${spring-boot-version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -128,5 +114,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

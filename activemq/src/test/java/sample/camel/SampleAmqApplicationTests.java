@@ -16,29 +16,29 @@
  */
 package sample.camel;
 
-import org.apache.camel.ExchangePattern;
-import org.apache.camel.builder.RouteBuilder;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.camel.CamelContext;
+import org.apache.camel.builder.NotifyBuilder;
+import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@Component
-public class SampleAutowiredAmqpRoute extends RouteBuilder {
-    @Override
-    public void configure() throws Exception {
-        from("file:src/main/data?noop=true")
-            .id("file-consumer-route")
-            .to("amqp:queue:SCIENCEQUEUE");
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-        from("timer:bar")
-            .id("timer-consumer-route")
-            .setBody(constant("Hello from Camel"))
-            .to("amqp:queue:SCIENCEQUEUE")
-            .log("Message sent from route ${routeId} to SCIENCEQUEUE");
-        
-        from("amqp:queue:SCIENCEQUEUE?receiveTimeout=10000")
-            .id("amqp-consumer-route")
-	        .id("consumer-route")
-	        .to("log:MyLogger?showBody=true");
+@CamelSpringBootTest
+@SpringBootTest(classes = SampleAmqApplication.class)
+public class SampleAmqApplicationTests {
+    @Autowired
+    private CamelContext camelContext;
+
+    @Disabled("Requires a running ActiveMQ broker.")
+    @Test
+    public void shouldProduceMessages() throws Exception {
+        NotifyBuilder notify = new NotifyBuilder(camelContext).whenDone(1).create();
+
+        assertTrue(notify.matches(10, TimeUnit.SECONDS));
     }
 }

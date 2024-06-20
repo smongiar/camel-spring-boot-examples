@@ -16,28 +16,22 @@
  */
 package sample.camel;
 
-import org.apache.camel.ExchangePattern;
 import org.apache.camel.builder.RouteBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SampleAutowiredAmqpRoute extends RouteBuilder {
+public class SampleAutowiredActiveMQRoute extends RouteBuilder {
+
     @Override
     public void configure() throws Exception {
-        from("file:src/main/data?noop=true")
-            .id("file-consumer-route")
-            .to("amqp:queue:SCIENCEQUEUE");
 
         from("timer:bar")
-            .id("timer-consumer-route")
+            .id("producer-route")
             .setBody(constant("Hello from Camel"))
-            .to("amqp:queue:SCIENCEQUEUE")
-            .log("Message sent from route ${routeId} to SCIENCEQUEUE");
-        
-        from("amqp:queue:SCIENCEQUEUE?receiveTimeout=10000")
-            .id("amqp-consumer-route")
+            .to("activemq:queue:SCIENCEQUEUE")
+            .log("Message sent from route ${routeId}.");
+
+	    from("activemq:queue:SCIENCEQUEUE")
 	        .id("consumer-route")
 	        .to("log:MyLogger?showBody=true");
     }
