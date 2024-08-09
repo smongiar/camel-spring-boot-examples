@@ -1,6 +1,6 @@
-== Camel Spring Boot example with Tomcat and database connection
+== Camel Spring Boot example with JBoss Web Server and database connection
 
-This example shows how to work with a simple Apache Camel Spring Boot application deploying to Tomcat and using its JDBC data source.
+This example shows how to work with a simple Apache Camel Spring Boot application deploying to JBoss Web Server and using its JDBC data source.
 
 The example generates 2 routes:
 
@@ -23,13 +23,13 @@ podman run --rm --name db -e POSTGRES_PASSWORD=password -p 5432:5432 docker.io/l
 [source,console]
 mvn clean package
 
-. Copy the `war` file to your tomcat `webapps` directory
+. Copy the `war` file to your JBoss Web Server `tomcat/webapps` directory
 [source,console]
-cp target/camel-example-spring-boot.war <your_tomcat_dir>/webapps/
+cp target/camel-example-spring-boot.war <your_jws_dir>/tomcat/webapps/
 
-. Run tomcat
+. Run JBoss Web Server
 [source,console]
-sh <your_tomcat_dir>/bin/catalina.sh run
+sh <your_jws_dir>/tomcat/bin/catalina.sh run
 
 . Look for the log messages in the console
 [source,log]
