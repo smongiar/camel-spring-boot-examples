@@ -56,7 +56,7 @@ to show the full handshake it is possible to add `-Dspring-boot.run.jvmArguments
 
 == Deploy on OpenShift Container Platform
 
-To run example on OpenShift, please go to link:README-OCP.adoc[the dedicated guide]
+To run example on OpenShift, please go to link:OCP.adoc[the dedicated guide]
 
 === Help and contributions
 
