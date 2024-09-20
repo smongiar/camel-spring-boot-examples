@@ -41,6 +41,30 @@ You can run this example with validation failure using
 
     mvn clean package -Popenshift -Dgreeting=Hello_Mars -DskipTests
 
+=== Shutdown policies example (on Openshift)
+
+Given that by default terminationGracePeriodSeconds is 30 seconds and camel.main.shutdown-timeout is 45, this example shows how to configure both of them so that the pod is not killed before the shutdown-timeout:
+
+in _src/main/jkube/deployment.yml_ we can configure the Pod graceful termination period
+
+    spec:
+      template:
+        spec:
+          containers:
+             # ...
+      terminationGracePeriodSeconds: 60 # default is 30
+
+On the application side we need to add some properties to set and verify the desired camel route shutdown using the camel *DefaultShutdownStrategy* feature:
+
+_src/main/resources/application.properties_
+
+    # increase graceful shutdown timeout to 60 seconds (default is 45)
+    camel.main.shutdown-timeout = 60 # (default is 45)
+    camel.springboot.shutdown-timeout = 60
+
+    # monitoring the DefaultShutdownStrategy behaviour
+    logging.level.org.apache.camel.impl.engine.DefaultShutdownStrategy = DEBUG
+
 === Help and contributions
 
 If you hit any problem using Camel or have some feedback, then please

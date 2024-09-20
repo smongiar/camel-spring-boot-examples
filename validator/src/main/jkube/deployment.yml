@@ -2,18 +2,19 @@ spec:
   template:
     spec:
       containers:
-      - env:
-          - name: JAVA_OPTIONS
-            value: " -Dgreeting=@greeting@ "
-      livenessProbe:
-        httpGet:
-          path: /
-          port: 8161
-          scheme: HTTP
-        initialDelaySeconds: 180
-      readinessProbe:
-        httpGet:
-          path: /
-          port: 8161
-          scheme: HTTP
-        initialDelaySeconds: 10
+        - env:
+            - name: JAVA_OPTIONS
+              value: " -Dgreeting=@greeting@ "
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 180
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 10
+      terminationGracePeriodSeconds: 60 # default is 30
